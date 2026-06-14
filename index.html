@@ -1,769 +1,761 @@
 <!DOCTYPE html>
-<html lang="fr" dir="ltr">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <meta name="theme-color" content="#00A651">
-  <meta name="description" content="DZ Promo - Les meilleures promotions et comparaison de prix en Algérie">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="DZ Promo">
-
+  <meta name="description" content="DZ Promo - Les meilleures promotions et comparaison de prix en Algérie">
   <title>DZ Promo - Promotions Algérie</title>
-
-  <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
-
-  <!-- Apple Touch Icons -->
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="icon" type="image/png" href="icons/icon-192.png">
-
-  <!-- Google Fonts -->
+  <link rel="icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-  <!-- Tabler Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
-
-  <!-- App Styles -->
+  <!-- Leaflet CSS for map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/v2.css">
 </head>
 <body>
+<div id="app">
 
-  <!-- APP SHELL -->
-  <div id="app">
-
-    <!-- ==================== SPLASH SCREEN ==================== -->
-    <div id="screen-splash" class="screen active">
-      <div class="splash-content">
-        <div class="splash-logo">
-          <div class="splash-icon">🏷️</div>
-          <div class="splash-brand">DZ<span>Promo</span></div>
-          <div class="splash-tagline">Les meilleures offres d'Algérie</div>
-        </div>
-        <div class="splash-loader">
-          <div class="loader-bar"><div class="loader-fill"></div></div>
-        </div>
-        <div class="splash-footer">🇩🇿 Fait pour les Algériens</div>
-      </div>
+  <!-- SPLASH -->
+  <div id="screen-splash" class="screen active">
+    <div class="splash-content">
+      <div class="splash-icon">🏷️</div>
+      <div class="splash-brand">DZ<span>Promo</span></div>
+      <div class="splash-tagline">Les meilleures offres d'Algérie</div>
+      <div class="splash-loader"><div class="loader-bar"><div class="loader-fill"></div></div></div>
+      <div class="splash-footer">🇩🇿 Fait pour les Algériens</div>
     </div>
+  </div>
 
-    <!-- ==================== AUTH SCREEN ==================== -->
-    <div id="screen-auth" class="screen">
-      <div class="auth-wrapper">
-        <div class="auth-top">
-          <div class="auth-illustration">🏷️</div>
-          <h1 class="auth-brand">DZ<span>Promo</span></h1>
-          <p class="auth-tagline">Trouvez les meilleurs prix<br>près de chez vous</p>
-        </div>
-        <div class="auth-form" id="auth-form">
-          <div class="tabs">
-            <button class="tab active" onclick="switchTab('login')">Connexion</button>
-            <button class="tab" onclick="switchTab('register')">Inscription</button>
-          </div>
-
-          <!-- Login -->
-          <div id="tab-login" class="tab-content active">
-            <div class="form-group">
-              <label>Email</label>
-              <div class="input-wrap">
-                <i class="ti ti-mail"></i>
-                <input type="email" placeholder="votre@email.com" autocomplete="email">
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Mot de passe</label>
-              <div class="input-wrap">
-                <i class="ti ti-lock"></i>
-                <input type="password" placeholder="••••••••" autocomplete="current-password">
-              </div>
-            </div>
-            <div class="forgot-link">Mot de passe oublié ?</div>
-            <button class="btn-primary" onclick="navigate('home')">
-              <i class="ti ti-login"></i> Se connecter
-            </button>
-            <div class="divider"><span>ou</span></div>
-            <button class="btn-google" onclick="navigate('home')">
-              <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
-              Continuer avec Google
-            </button>
-          </div>
-
-          <!-- Register -->
-          <div id="tab-register" class="tab-content">
-            <div class="form-group">
-              <label>Nom complet</label>
-              <div class="input-wrap">
-                <i class="ti ti-user"></i>
-                <input type="text" placeholder="Ahmed Kaddouri" autocomplete="name">
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Téléphone</label>
-              <div class="input-wrap">
-                <i class="ti ti-phone"></i>
-                <input type="tel" placeholder="+213 555 123 456" autocomplete="tel">
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Email</label>
-              <div class="input-wrap">
-                <i class="ti ti-mail"></i>
-                <input type="email" placeholder="votre@email.com" autocomplete="email">
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Mot de passe</label>
-              <div class="input-wrap">
-                <i class="ti ti-lock"></i>
-                <input type="password" placeholder="••••••••" autocomplete="new-password">
-              </div>
-            </div>
-            <button class="btn-primary" onclick="navigate('home')">
-              <i class="ti ti-user-plus"></i> Créer mon compte
-            </button>
-          </div>
-        </div>
+  <!-- AUTH -->
+  <div id="screen-auth" class="screen">
+    <div class="auth-wrapper">
+      <div class="auth-top">
+        <div class="auth-illustration">🏷️</div>
+        <h1 class="auth-brand">DZ<span>Promo</span></h1>
+        <p class="auth-tagline">Trouvez les meilleurs prix<br>près de chez vous</p>
       </div>
-    </div>
-
-    <!-- ==================== HOME SCREEN ==================== -->
-    <div id="screen-home" class="screen">
-      <div class="screen-scroll">
-        <!-- Top Bar -->
-        <header class="topbar">
-          <div class="topbar-left">
-            <div class="brand-logo">DZ<span>Promo</span></div>
-            <div class="location-tag">
-              <i class="ti ti-map-pin"></i>
-              <span id="user-city">Oran, Algérie</span>
-            </div>
-          </div>
-          <div class="topbar-actions">
-            <button class="icon-btn notif-btn" onclick="navigate('notifications')">
-              <i class="ti ti-bell"></i>
-              <span class="badge-dot" id="notif-badge"></span>
-            </button>
-            <button class="icon-btn" onclick="navigate('profile')">
-              <div class="avatar-mini">AK</div>
-            </button>
-          </div>
-        </header>
-
-        <!-- Search Bar -->
-        <div class="search-section">
-          <div class="search-bar" onclick="navigate('search')" role="button">
-            <i class="ti ti-search"></i>
-            <span class="search-placeholder">Rechercher un produit, magasin...</span>
-            <button class="filter-btn"><i class="ti ti-adjustments-horizontal"></i></button>
-          </div>
+      <div class="auth-form">
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('login')">Connexion</button>
+          <button class="tab" onclick="switchTab('register')">Inscription</button>
         </div>
 
-        <!-- Hero Banner -->
-        <div class="hero-section">
-          <div class="hero-card" id="hero-banner">
-            <div class="hero-text">
-              <div class="hero-tag">🎉 Offres Spéciales</div>
-              <h2 class="hero-title">Jusqu'à 60% de réduction</h2>
-              <p class="hero-sub">Dans plus de 200 magasins à Oran</p>
-              <button class="hero-btn">Voir les offres <i class="ti ti-arrow-right"></i></button>
-            </div>
-            <div class="hero-emoji">🛒</div>
-          </div>
-          <!-- Dots indicator -->
-          <div class="hero-dots">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-
-        <!-- Categories -->
-        <section class="section">
-          <div class="section-header">
-            <h3 class="section-title">Catégories</h3>
-          </div>
-          <div class="cats-scroll" id="categories-scroll">
-            <div class="cat-item active" onclick="filterCategory(this, 'tous')">
-              <div class="cat-icon">🛍️</div>
-              <span>Tous</span>
-            </div>
-            <div class="cat-item" onclick="filterCategory(this, 'alimentaire')">
-              <div class="cat-icon">🛒</div>
-              <span>Alimentaire</span>
-            </div>
-            <div class="cat-item" onclick="filterCategory(this, 'electro')">
-              <div class="cat-icon">📺</div>
-              <span>Électro</span>
-            </div>
-            <div class="cat-item" onclick="filterCategory(this, 'telephones')">
-              <div class="cat-icon">📱</div>
-              <span>Téléphones</span>
-            </div>
-            <div class="cat-item" onclick="filterCategory(this, 'mode')">
-              <div class="cat-icon">👗</div>
-              <span>Mode</span>
-            </div>
-            <div class="cat-item" onclick="filterCategory(this, 'beaute')">
-              <div class="cat-icon">💄</div>
-              <span>Beauté</span>
-            </div>
-            <div class="cat-item" onclick="filterCategory(this, 'pharmacie')">
-              <div class="cat-icon">💊</div>
-              <span>Pharmacie</span>
-            </div>
-            <div class="cat-item" onclick="filterCategory(this, 'informatique')">
-              <div class="cat-icon">💻</div>
-              <span>Informatique</span>
-            </div>
-            <div class="cat-item" onclick="filterCategory(this, 'maison')">
-              <div class="cat-icon">🏠</div>
-              <span>Maison</span>
+        <!-- Login -->
+        <div id="tab-login" class="tab-content active">
+          <div class="form-group">
+            <label>Type de compte</label>
+            <div style="display:flex; gap:8px; margin-bottom:4px;">
+              <button class="role-btn active" id="role-user" onclick="selectRole('user')">
+                <i class="ti ti-user"></i> Client
+              </button>
+              <button class="role-btn" id="role-merchant" onclick="selectRole('merchant')">
+                <i class="ti ti-building-store"></i> Commerçant
+              </button>
             </div>
           </div>
-        </section>
-
-        <!-- Flash Deals -->
-        <section class="section">
-          <div class="section-header">
-            <h3 class="section-title">⚡ Offres Flash</h3>
-            <button class="see-all-btn" onclick="navigate('search')">Voir tout</button>
-          </div>
-          <div class="promo-grid" id="flash-deals-grid">
-            <!-- populated by JS -->
-          </div>
-        </section>
-
-        <!-- Trending -->
-        <section class="section">
-          <div class="section-header">
-            <h3 class="section-title">🔥 Tendances</h3>
-            <button class="see-all-btn" onclick="navigate('search')">Voir tout</button>
-          </div>
-          <div class="trending-scroll" id="trending-scroll">
-            <!-- populated by JS -->
-          </div>
-        </section>
-
-        <!-- Nearby Stores -->
-        <section class="section">
-          <div class="section-header">
-            <h3 class="section-title">📍 Magasins proches</h3>
-            <button class="see-all-btn" onclick="navigate('map')">Carte</button>
-          </div>
-          <div id="nearby-stores">
-            <!-- populated by JS -->
-          </div>
-        </section>
-
-        <div style="height: 20px;"></div>
-      </div>
-
-      <!-- Bottom Navigation -->
-      <nav class="bottom-nav">
-        <button class="nav-item active" onclick="navigate('home')">
-          <i class="ti ti-home"></i><span>Accueil</span>
-        </button>
-        <button class="nav-item" onclick="navigate('search')">
-          <i class="ti ti-search"></i><span>Recherche</span>
-        </button>
-        <button class="nav-item" onclick="navigate('compare')">
-          <i class="ti ti-git-compare"></i><span>Comparer</span>
-        </button>
-        <button class="nav-item" onclick="navigate('favorites')">
-          <i class="ti ti-heart"></i><span>Favoris</span>
-        </button>
-        <button class="nav-item" onclick="navigate('profile')">
-          <i class="ti ti-user"></i><span>Profil</span>
-        </button>
-      </nav>
-    </div>
-
-    <!-- ==================== SEARCH SCREEN ==================== -->
-    <div id="screen-search" class="screen">
-      <div class="screen-scroll">
-        <header class="topbar-simple">
-          <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
-          <div class="search-bar-active">
-            <i class="ti ti-search"></i>
-            <input type="text" id="main-search-input" placeholder="Produit, marque, magasin..." 
-                   autofocus oninput="handleSearch(this.value)">
-            <button class="clear-btn" id="search-clear" onclick="clearSearch()" style="display:none;">
-              <i class="ti ti-x"></i>
-            </button>
-          </div>
-        </header>
-
-        <!-- Filter chips -->
-        <div class="filter-chips-row">
-          <button class="chip active" onclick="setFilter(this,'tous')">Tous</button>
-          <button class="chip" onclick="setFilter(this,'alimentaire')">Alimentaire</button>
-          <button class="chip" onclick="setFilter(this,'electro')">Électro</button>
-          <button class="chip" onclick="setFilter(this,'telephones')">Téléphones</button>
-          <button class="chip" onclick="setFilter(this,'mode')">Mode</button>
-          <button class="chip" onclick="setFilter(this,'beaute')">Beauté</button>
-        </div>
-
-        <!-- Trending searches -->
-        <div id="search-default">
-          <div class="section">
-            <h3 class="section-title" style="padding: 0 16px 10px;">Recherches populaires</h3>
-            <div class="trending-tags">
-              <button class="trend-tag" onclick="searchFor('Huile Fleurial')">🛢️ Huile Fleurial</button>
-              <button class="trend-tag" onclick="searchFor('Samsung A15')">📱 Samsung A15</button>
-              <button class="trend-tag" onclick="searchFor('Climatiseur')">❄️ Climatiseur</button>
-              <button class="trend-tag" onclick="searchFor('Café Mokarabia')">☕ Café Mokarabia</button>
-              <button class="trend-tag" onclick="searchFor('Nike')">👟 Nike</button>
-              <button class="trend-tag" onclick="searchFor('Lait Candia')">🥛 Lait Candia</button>
-              <button class="trend-tag" onclick="searchFor('Spaghetti Barilla')">🍝 Spaghetti</button>
-              <button class="trend-tag" onclick="searchFor('Smartphone')">📲 Smartphone</button>
+          <div class="form-group">
+            <label>Email</label>
+            <div class="input-wrap">
+              <i class="ti ti-mail"></i>
+              <input type="email" id="login-email" placeholder="votre@email.com" autocomplete="email">
             </div>
           </div>
-          <div class="section">
-            <h3 class="section-title" style="padding: 0 16px 10px;">Résultats récents</h3>
-            <div class="promo-grid" id="search-recent-grid"></div>
+          <div class="form-group">
+            <label>Mot de passe</label>
+            <div class="input-wrap">
+              <i class="ti ti-lock"></i>
+              <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+              <button onclick="togglePwd('login-password',this)" style="background:none;border:none;cursor:pointer;color:var(--dz-muted);padding:0;">
+                <i class="ti ti-eye"></i>
+              </button>
+            </div>
           </div>
-        </div>
-
-        <!-- Search results -->
-        <div id="search-results" style="display:none;">
-          <div style="padding: 8px 16px 12px; display:flex; align-items:center; justify-content:space-between;">
-            <span class="results-count" id="results-count">0 résultats</span>
-            <button class="sort-btn"><i class="ti ti-arrows-sort"></i> Trier</button>
-          </div>
-          <div class="promo-grid" id="search-results-grid"></div>
-        </div>
-      </div>
-
-      <nav class="bottom-nav">
-        <button class="nav-item" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
-        <button class="nav-item active" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
-        <button class="nav-item" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
-        <button class="nav-item" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
-        <button class="nav-item" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
-      </nav>
-    </div>
-
-    <!-- ==================== PRODUCT DETAIL ==================== -->
-    <div id="screen-product" class="screen">
-      <div class="screen-scroll">
-        <header class="topbar-simple">
-          <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
-          <span class="topbar-title">Détail produit</span>
-          <button class="icon-btn" onclick="shareProduct()"><i class="ti ti-share"></i></button>
-        </header>
-
-        <!-- Product Image -->
-        <div class="product-image-box" id="product-image-box">
-          <div class="product-emoji" id="product-emoji">🛢️</div>
-          <button class="fav-circle" id="fav-circle" onclick="toggleFavorite()">
-            <i class="ti ti-heart" id="fav-icon"></i>
-          </button>
-          <div class="discount-ribbon" id="product-discount">-30%</div>
-        </div>
-
-        <!-- Product Info -->
-        <div class="product-info-card">
-          <div class="product-tags" id="product-tags"></div>
-          <h2 class="product-name" id="product-name">Huile de table Fleurial 5L</h2>
-          <p class="product-desc" id="product-desc">Huile végétale raffinée, idéale pour la friture et la cuisine quotidienne.</p>
-          <div class="product-price-row">
-            <span class="price-main" id="product-price">1,890 DA</span>
-            <span class="price-crossed" id="product-old-price">2,700 DA</span>
-            <span class="discount-pill" id="product-discount-pill">-30%</span>
-          </div>
-          <div class="expiry-note" id="product-expiry">
-            <i class="ti ti-clock"></i> Expire dans 2 jours
-          </div>
-          <button class="btn-primary" onclick="navigate('compare')">
-            <i class="ti ti-git-compare"></i> Comparer les prix
+          <div class="forgot-link" onclick="resetPassword()">Mot de passe oublié ?</div>
+          <button class="btn-primary" onclick="loginUser()"><i class="ti ti-login"></i> Se connecter</button>
+          <div class="divider"><span>ou</span></div>
+          <button class="btn-google" onclick="loginGoogle()">
+            <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
+            Continuer avec Google
           </button>
         </div>
 
-        <!-- Price History Chart -->
-        <div class="section">
-          <h3 class="section-title" style="padding: 0 16px 12px;">📈 Historique des prix</h3>
-          <div class="price-history-chart" id="price-chart">
-            <canvas id="priceCanvas" width="340" height="120"></canvas>
+        <!-- Register -->
+        <div id="tab-register" class="tab-content">
+          <div class="form-group">
+            <label>Type de compte</label>
+            <div style="display:flex; gap:8px; margin-bottom:4px;">
+              <button class="role-btn active" id="reg-role-user" onclick="selectRegRole('user')">
+                <i class="ti ti-user"></i> Client
+              </button>
+              <button class="role-btn" id="reg-role-merchant" onclick="selectRegRole('merchant')">
+                <i class="ti ti-building-store"></i> Commerçant
+              </button>
+            </div>
           </div>
-          <div class="chart-months">
-            <span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Jun</span>
+          <div class="form-group">
+            <label>Nom complet</label>
+            <div class="input-wrap">
+              <i class="ti ti-user"></i>
+              <input type="text" id="reg-name" placeholder="Ahmed Kaddouri" autocomplete="name">
+            </div>
           </div>
-        </div>
-
-        <!-- Sellers -->
-        <div class="section" style="padding-bottom: 24px;">
-          <h3 class="section-title" style="padding: 0 16px 12px;">🏪 Vendeurs disponibles</h3>
-          <div id="sellers-list"></div>
+          <div id="merchant-store-field" style="display:none;">
+            <div class="form-group">
+              <label>Nom du magasin</label>
+              <div class="input-wrap">
+                <i class="ti ti-building-store"></i>
+                <input type="text" id="reg-store" placeholder="Épicerie El Baraka">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Adresse du magasin</label>
+              <div class="input-wrap">
+                <i class="ti ti-map-pin"></i>
+                <input type="text" id="reg-address" placeholder="Rue Mohamed Khemisti, Oran">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <div class="input-wrap">
+              <i class="ti ti-phone"></i>
+              <input type="tel" id="reg-phone" placeholder="+213 555 123 456">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <div class="input-wrap">
+              <i class="ti ti-mail"></i>
+              <input type="email" id="reg-email" placeholder="votre@email.com" autocomplete="email">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Mot de passe</label>
+            <div class="input-wrap">
+              <i class="ti ti-lock"></i>
+              <input type="password" id="reg-password" placeholder="Min. 6 caractères" autocomplete="new-password">
+              <button onclick="togglePwd('reg-password',this)" style="background:none;border:none;cursor:pointer;color:var(--dz-muted);padding:0;">
+                <i class="ti ti-eye"></i>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Confirmer le mot de passe</label>
+            <div class="input-wrap">
+              <i class="ti ti-lock-check"></i>
+              <input type="password" id="reg-confirm" placeholder="Répéter le mot de passe">
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; align-items:flex-start; margin-bottom:14px;">
+            <input type="checkbox" id="reg-terms" style="margin-top:3px; accent-color:#00A651;">
+            <label for="reg-terms" style="font-size:12px; color:var(--dz-muted); line-height:1.5; cursor:pointer;">
+              J'accepte les <span style="color:#00A651; font-weight:600;">conditions d'utilisation</span> et la politique de confidentialité de DZ Promo
+            </label>
+          </div>
+          <button class="btn-primary" onclick="registerUser()"><i class="ti ti-user-plus"></i> Créer mon compte</button>
+          <div class="divider"><span>ou</span></div>
+          <button class="btn-google" onclick="loginGoogle()">
+            <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
+            Inscription avec Google
+          </button>
         </div>
       </div>
-
-      <nav class="bottom-nav">
-        <button class="nav-item" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
-        <button class="nav-item" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
-        <button class="nav-item" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
-        <button class="nav-item" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
-        <button class="nav-item" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
-      </nav>
     </div>
+  </div>
 
-    <!-- ==================== COMPARE SCREEN ==================== -->
-    <div id="screen-compare" class="screen">
-      <div class="screen-scroll">
-        <header class="topbar-simple">
-          <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
-          <span class="topbar-title">Comparateur de prix</span>
-          <button class="icon-btn"><i class="ti ti-adjustments"></i></button>
-        </header>
-
-        <div style="padding: 12px 16px;">
-          <div class="info-banner green">
-            <i class="ti ti-currency-dollar"></i>
-            <span>Économisez jusqu'à <strong>2,500 DA</strong> en choisissant le bon vendeur</span>
-          </div>
+  <!-- HOME -->
+  <div id="screen-home" class="screen">
+    <div class="screen-scroll">
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="brand-logo">DZ<span>Promo</span></div>
+          <div class="location-tag"><i class="ti ti-map-pin"></i><span id="user-city">Oran, Algérie</span></div>
         </div>
-
-        <div id="compare-list" style="padding: 0 16px 24px;"></div>
-      </div>
-
-      <nav class="bottom-nav">
-        <button class="nav-item" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
-        <button class="nav-item" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
-        <button class="nav-item active" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
-        <button class="nav-item" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
-        <button class="nav-item" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
-      </nav>
-    </div>
-
-    <!-- ==================== FAVORITES ==================== -->
-    <div id="screen-favorites" class="screen">
-      <div class="screen-scroll">
-        <header class="topbar-simple">
-          <span class="topbar-title">Mes Favoris</span>
+        <div class="topbar-actions">
           <button class="icon-btn notif-btn" onclick="navigate('notifications')">
-            <i class="ti ti-bell"></i>
-            <span class="badge-dot"></span>
+            <i class="ti ti-bell"></i><span class="badge-dot" id="notif-badge"></span>
           </button>
-        </header>
-
-        <div style="padding: 4px 16px 14px;">
-          <p class="muted-text">4 produits surveillés · Alertes activées</p>
+          <button class="icon-btn" onclick="navigate('profile')">
+            <div class="avatar-mini" id="avatar-mini">AK</div>
+          </button>
         </div>
-
-        <div id="favorites-list"></div>
-
-        <div style="padding: 12px 16px 24px;">
-          <div class="info-banner green">
-            <i class="ti ti-bell"></i>
-            <div>
-              <strong>Alertes de prix actives</strong><br>
-              <span style="font-size: 12px;">Vous serez notifié dès qu'un prix baisse</span>
-            </div>
-          </div>
+      </header>
+      <div class="search-section">
+        <div class="search-bar" onclick="navigate('search')" role="button" tabindex="0">
+          <i class="ti ti-search"></i>
+          <span class="search-placeholder">Rechercher un produit, magasin...</span>
+          <button class="filter-btn"><i class="ti ti-adjustments-horizontal"></i></button>
         </div>
       </div>
-
-      <nav class="bottom-nav">
-        <button class="nav-item" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
-        <button class="nav-item" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
-        <button class="nav-item" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
-        <button class="nav-item active" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
-        <button class="nav-item" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
-      </nav>
+      <div class="hero-section">
+        <div class="hero-card">
+          <div class="hero-text">
+            <div class="hero-tag">🎉 Offres Spéciales</div>
+            <h2 class="hero-title">Jusqu'à 60% de réduction</h2>
+            <p class="hero-sub">Dans plus de 200 magasins à Oran</p>
+            <button class="hero-btn" onclick="navigate('search')">Voir les offres <i class="ti ti-arrow-right"></i></button>
+          </div>
+          <div class="hero-emoji">🛒</div>
+        </div>
+        <div class="hero-dots"><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
+      </div>
+      <section class="section">
+        <div class="section-header"><h3 class="section-title">Catégories</h3></div>
+        <div class="cats-scroll" id="categories-scroll">
+          <div class="cat-item active" onclick="filterCategory(this,'tous')"><div class="cat-icon">🛍️</div><span>Tous</span></div>
+          <div class="cat-item" onclick="filterCategory(this,'alimentaire')"><div class="cat-icon">🛒</div><span>Alimentaire</span></div>
+          <div class="cat-item" onclick="filterCategory(this,'electro')"><div class="cat-icon">📺</div><span>Électro</span></div>
+          <div class="cat-item" onclick="filterCategory(this,'telephones')"><div class="cat-icon">📱</div><span>Téléphones</span></div>
+          <div class="cat-item" onclick="filterCategory(this,'mode')"><div class="cat-icon">👗</div><span>Mode</span></div>
+          <div class="cat-item" onclick="filterCategory(this,'beaute')"><div class="cat-icon">💄</div><span>Beauté</span></div>
+          <div class="cat-item" onclick="filterCategory(this,'pharmacie')"><div class="cat-icon">💊</div><span>Pharmacie</span></div>
+          <div class="cat-item" onclick="filterCategory(this,'informatique')"><div class="cat-icon">💻</div><span>Informatique</span></div>
+          <div class="cat-item" onclick="filterCategory(this,'maison')"><div class="cat-icon">🏠</div><span>Maison</span></div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="section-header"><h3 class="section-title">⚡ Offres Flash</h3><button class="see-all-btn" onclick="navigate('search')">Voir tout</button></div>
+        <div class="promo-grid" id="flash-deals-grid"></div>
+      </section>
+      <section class="section">
+        <div class="section-header"><h3 class="section-title">🔥 Tendances</h3><button class="see-all-btn" onclick="navigate('search')">Voir tout</button></div>
+        <div class="trending-scroll" id="trending-scroll"></div>
+      </section>
+      <section class="section">
+        <div class="section-header"><h3 class="section-title">📍 Magasins proches</h3><button class="see-all-btn" onclick="navigate('map')">Carte</button></div>
+        <div id="nearby-stores"></div>
+      </section>
+      <div style="height:20px;"></div>
     </div>
+    <nav class="bottom-nav">
+      <button class="nav-item active" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
+      <button class="nav-item" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
+      <button class="nav-item" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
+      <button class="nav-item" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
+      <button class="nav-item" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
+    </nav>
+  </div>
 
-    <!-- ==================== NOTIFICATIONS ==================== -->
-    <div id="screen-notifications" class="screen">
-      <div class="screen-scroll">
-        <header class="topbar-simple">
-          <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
-          <span class="topbar-title">Notifications</span>
-          <button class="text-btn" onclick="markAllRead()">Tout lire</button>
-        </header>
-
-        <div id="notifications-list"></div>
+  <!-- SEARCH -->
+  <div id="screen-search" class="screen">
+    <div class="screen-scroll">
+      <header class="topbar-simple">
+        <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+        <div class="search-bar-active" style="position:relative;">
+          <i class="ti ti-search"></i>
+          <input type="text" id="main-search-input" placeholder="Café, Samsung, Nike..."
+            oninput="handleSearchInput(this.value)" autocomplete="off" spellcheck="false">
+          <button class="clear-btn" id="search-clear" onclick="clearSearch()" style="display:none;"><i class="ti ti-x"></i></button>
+        </div>
+      </header>
+      <!-- Autocomplete suggestions -->
+      <div id="search-suggestions" class="suggestions-box" style="display:none;"></div>
+      <div class="filter-chips-row">
+        <button class="chip active" onclick="setFilter(this,'tous')">Tous</button>
+        <button class="chip" onclick="setFilter(this,'alimentaire')">Alimentaire</button>
+        <button class="chip" onclick="setFilter(this,'electro')">Électro</button>
+        <button class="chip" onclick="setFilter(this,'telephones')">Téléphones</button>
+        <button class="chip" onclick="setFilter(this,'mode')">Mode</button>
+        <button class="chip" onclick="setFilter(this,'beaute')">Beauté</button>
+        <button class="chip" onclick="setFilter(this,'pharmacie')">Pharmacie</button>
+      </div>
+      <div id="search-default">
+        <div class="section">
+          <h3 class="section-title" style="padding:0 16px 10px;">Recherches populaires</h3>
+          <div class="trending-tags">
+            <button class="trend-tag" onclick="searchFor('Huile Fleurial')">🛢️ Huile Fleurial</button>
+            <button class="trend-tag" onclick="searchFor('Samsung')">📱 Samsung</button>
+            <button class="trend-tag" onclick="searchFor('Climatiseur')">❄️ Climatiseur</button>
+            <button class="trend-tag" onclick="searchFor('Café')">☕ Café</button>
+            <button class="trend-tag" onclick="searchFor('Nike')">👟 Nike</button>
+            <button class="trend-tag" onclick="searchFor('Lait')">🥛 Lait</button>
+            <button class="trend-tag" onclick="searchFor('PC')">💻 PC</button>
+            <button class="trend-tag" onclick="searchFor('Cartouche')">🖨️ Cartouche</button>
+            <button class="trend-tag" onclick="searchFor('Canapé')">🛋️ Canapé</button>
+          </div>
+        </div>
+        <div class="section">
+          <h3 class="section-title" style="padding:0 16px 10px;">Promotions récentes</h3>
+          <div class="promo-grid" id="search-recent-grid"></div>
+        </div>
+      </div>
+      <div id="search-results" style="display:none;">
+        <div style="padding:8px 16px 12px; display:flex; align-items:center; justify-content:space-between;">
+          <span class="results-count" id="results-count">0 résultats</span>
+          <button class="sort-btn"><i class="ti ti-arrows-sort"></i> Trier</button>
+        </div>
+        <div class="promo-grid" id="search-results-grid"></div>
       </div>
     </div>
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
+      <button class="nav-item active" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
+      <button class="nav-item" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
+      <button class="nav-item" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
+      <button class="nav-item" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
+    </nav>
+  </div>
 
-    <!-- ==================== MAP SCREEN ==================== -->
-    <div id="screen-map" class="screen">
-      <div class="screen-scroll">
-        <header class="topbar-simple">
-          <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
-          <span class="topbar-title">Carte des magasins</span>
-          <button class="icon-btn"><i class="ti ti-adjustments"></i></button>
-        </header>
-
-        <!-- Map placeholder (Google Maps embed ready) -->
-        <div class="map-container" id="map-container">
-          <div class="map-placeholder">
-            <div class="map-pin-anim">📍</div>
-            <div class="map-title">Oran, Algérie</div>
-            <div class="map-subtitle">12 magasins avec promotions actives</div>
-            <div class="map-legend">
-              <span><span class="legend-dot green"></span>Alimentaire</span>
-              <span><span class="legend-dot orange"></span>Électro</span>
-              <span><span class="legend-dot purple"></span>Mode</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Store filter -->
-        <div class="filter-chips-row" style="padding-top: 12px;">
-          <button class="chip active">Tous (12)</button>
-          <button class="chip">Alimentaire (5)</button>
-          <button class="chip">Électro (3)</button>
-          <button class="chip">Mode (2)</button>
-          <button class="chip">Pharmacie (2)</button>
-        </div>
-
-        <div style="padding: 10px 16px 6px;">
-          <h3 class="section-title">Magasins proches</h3>
-        </div>
-        <div id="stores-list"></div>
-        <div style="height: 20px;"></div>
+  <!-- PRODUCT DETAIL -->
+  <div id="screen-product" class="screen">
+    <div class="screen-scroll">
+      <header class="topbar-simple">
+        <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+        <span class="topbar-title">Détail produit</span>
+        <button class="icon-btn" onclick="shareProduct()"><i class="ti ti-share"></i></button>
+      </header>
+      <!-- Photo gallery -->
+      <div class="product-gallery" id="product-gallery">
+        <div class="gallery-main" id="gallery-main">🛢️</div>
+        <div class="gallery-thumbs" id="gallery-thumbs"></div>
       </div>
-
-      <nav class="bottom-nav">
-        <button class="nav-item" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
-        <button class="nav-item" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
-        <button class="nav-item" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
-        <button class="nav-item" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
-        <button class="nav-item" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
-      </nav>
-    </div>
-
-    <!-- ==================== PROFILE ==================== -->
-    <div id="screen-profile" class="screen">
-      <div class="screen-scroll">
-        <!-- Profile Header -->
-        <div class="profile-header">
-          <div class="profile-avatar-large">AK</div>
-          <div class="profile-name">Ahmed Kaddouri</div>
-          <div class="profile-email">ahmed.k@gmail.com</div>
-          <div class="profile-stats-row">
-            <div class="pstat"><div class="pstat-n">4</div><div class="pstat-l">Favoris</div></div>
-            <div class="pstat-sep"></div>
-            <div class="pstat"><div class="pstat-n">28</div><div class="pstat-l">Alertes</div></div>
-            <div class="pstat-sep"></div>
-            <div class="pstat"><div class="pstat-n">12,400 DA</div><div class="pstat-l">Économisé</div></div>
-          </div>
+      <div class="product-info-card">
+        <div class="product-tags" id="product-tags"></div>
+        <h2 class="product-name" id="product-name">Produit</h2>
+        <p class="product-desc" id="product-desc"></p>
+        <div class="product-price-row">
+          <span class="price-main" id="product-price">0 DA</span>
+          <span class="price-crossed" id="product-old-price"></span>
+          <span class="discount-pill" id="product-discount-pill"></span>
         </div>
-
-        <!-- Menu Items -->
-        <div class="menu-list">
-          <div class="menu-section-title">MON COMPTE</div>
-          <button class="menu-item" onclick="navigate('favorites')">
-            <div class="menu-icon green"><i class="ti ti-heart"></i></div>
-            <span class="menu-label">Mes favoris</span>
-            <i class="ti ti-chevron-right menu-arrow"></i>
-          </button>
-          <button class="menu-item" onclick="navigate('notifications')">
-            <div class="menu-icon orange"><i class="ti ti-bell"></i></div>
-            <span class="menu-label">Alertes prix</span>
-            <i class="ti ti-chevron-right menu-arrow"></i>
-          </button>
-          <button class="menu-item">
-            <div class="menu-icon purple"><i class="ti ti-history"></i></div>
-            <span class="menu-label">Historique des recherches</span>
-            <i class="ti ti-chevron-right menu-arrow"></i>
-          </button>
-          <button class="menu-item" onclick="navigate('map')">
-            <div class="menu-icon green"><i class="ti ti-map-pin"></i></div>
-            <span class="menu-label">Ma localisation</span>
-            <i class="ti ti-chevron-right menu-arrow"></i>
-          </button>
-
-          <div class="menu-section-title">COMMERÇANT</div>
-          <button class="menu-item merchant-item" onclick="navigate('dashboard')">
-            <div class="menu-icon white"><i class="ti ti-building-store"></i></div>
-            <span class="menu-label" style="color: #fff;">Espace Commerçant</span>
-            <i class="ti ti-chevron-right menu-arrow" style="color: rgba(255,255,255,0.7);"></i>
-          </button>
-
-          <div class="menu-section-title">PARAMÈTRES</div>
-          <button class="menu-item">
-            <div class="menu-icon gray"><i class="ti ti-settings"></i></div>
-            <span class="menu-label">Paramètres</span>
-            <i class="ti ti-chevron-right menu-arrow"></i>
-          </button>
-          <button class="menu-item">
-            <div class="menu-icon gray"><i class="ti ti-help-circle"></i></div>
-            <span class="menu-label">Aide & Support</span>
-            <i class="ti ti-chevron-right menu-arrow"></i>
-          </button>
-          <button class="menu-item danger-item" onclick="navigate('auth')">
-            <div class="menu-icon red"><i class="ti ti-logout"></i></div>
-            <span class="menu-label" style="color: #E24B4A;">Déconnexion</span>
-          </button>
+        <div class="expiry-note" id="product-expiry"></div>
+        <div style="display:flex; gap:10px; margin-bottom:0;">
+          <button class="btn-primary" style="flex:1;" onclick="navigate('compare')"><i class="ti ti-git-compare"></i> Comparer</button>
+          <button class="fav-main-btn" id="fav-main-btn" onclick="toggleFavorite()"><i class="ti ti-heart" id="fav-icon"></i></button>
         </div>
-
-        <div class="app-version">DZ Promo v1.0.0 · 🇩🇿</div>
       </div>
-
-      <nav class="bottom-nav">
-        <button class="nav-item" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
-        <button class="nav-item" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
-        <button class="nav-item" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
-        <button class="nav-item" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
-        <button class="nav-item active" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
-      </nav>
+      <div class="section">
+        <h3 class="section-title" style="padding:0 16px 12px;">📈 Historique des prix</h3>
+        <div class="price-history-chart"><canvas id="priceCanvas" width="340" height="120"></canvas></div>
+        <div class="chart-months"><span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Jun</span></div>
+      </div>
+      <div class="section" style="padding-bottom:24px;">
+        <h3 class="section-title" style="padding:0 16px 12px;">🏪 Vendeurs disponibles</h3>
+        <div id="sellers-list"></div>
+      </div>
     </div>
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
+      <button class="nav-item" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
+      <button class="nav-item" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
+      <button class="nav-item" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
+      <button class="nav-item" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
+    </nav>
+  </div>
 
-    <!-- ==================== DASHBOARD ==================== -->
-    <div id="screen-dashboard" class="screen">
-      <div class="screen-scroll">
-        <div class="dashboard-header">
-          <button class="back-btn-white" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
-          <div class="dash-store-info">
-            <div class="dash-store-icon">🛒</div>
-            <div>
-              <div class="dash-store-name">Uno Market Oran</div>
-              <div class="dash-store-badge">Compte Pro · Actif</div>
-            </div>
-          </div>
-          <button class="icon-btn-white"><i class="ti ti-bell"></i></button>
+  <!-- COMPARE -->
+  <div id="screen-compare" class="screen">
+    <div class="screen-scroll">
+      <header class="topbar-simple">
+        <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+        <span class="topbar-title">Comparateur de prix</span>
+      </header>
+      <div style="padding:12px 16px;">
+        <div class="info-banner green">
+          <i class="ti ti-currency-dollar"></i>
+          <span>Économisez jusqu'à <strong>2,500 DA</strong> en choisissant le bon vendeur</span>
         </div>
+      </div>
+      <div id="compare-list" style="padding:0 16px 24px;"></div>
+    </div>
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
+      <button class="nav-item" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
+      <button class="nav-item active" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
+      <button class="nav-item" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
+      <button class="nav-item" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
+    </nav>
+  </div>
 
-        <!-- Stats Grid -->
-        <div style="padding: 16px;">
-          <h3 class="section-title" style="margin-bottom: 12px;">Statistiques du mois</h3>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-icon green"><i class="ti ti-eye"></i></div>
-              <div class="stat-value">3,248</div>
-              <div class="stat-label">Vues des offres</div>
-              <div class="stat-delta up">↑ +18%</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon orange"><i class="ti ti-pointer"></i></div>
-              <div class="stat-value">486</div>
-              <div class="stat-label">Clics vers magasin</div>
-              <div class="stat-delta up">↑ +24%</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon purple"><i class="ti ti-tag"></i></div>
-              <div class="stat-value">23</div>
-              <div class="stat-label">Promos actives</div>
-              <div class="stat-delta neutral">— Stable</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon blue"><i class="ti ti-heart"></i></div>
-              <div class="stat-value">142</div>
-              <div class="stat-label">Nouveaux favoris</div>
-              <div class="stat-delta up">↑ +31%</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Active Promotions -->
-        <div style="padding: 0 16px 16px;">
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px;">
-            <h3 class="section-title">Promotions actives</h3>
-            <button class="add-promo-btn" onclick="showAddPromo()">
-              <i class="ti ti-plus"></i> Ajouter
-            </button>
-          </div>
-          <div id="dashboard-promos"></div>
-        </div>
-
-        <!-- Action buttons -->
-        <div style="padding: 0 16px 16px;">
-          <button class="btn-primary" onclick="showAddPromo()">
-            <i class="ti ti-plus"></i> Publier une nouvelle promotion
-          </button>
-          <button class="btn-secondary" style="margin-top: 10px;">
-            <i class="ti ti-crown"></i> Passer en offre sponsorisée
-          </button>
-        </div>
-
-        <!-- Chart -->
-        <div style="padding: 0 16px 24px;">
-          <h3 class="section-title" style="margin-bottom: 12px;">📊 Performance des 7 derniers jours</h3>
-          <div class="dash-chart">
-            <canvas id="dashCanvas" width="320" height="140"></canvas>
-          </div>
+  <!-- FAVORITES -->
+  <div id="screen-favorites" class="screen">
+    <div class="screen-scroll">
+      <header class="topbar-simple">
+        <span class="topbar-title">Mes Favoris</span>
+        <button class="icon-btn notif-btn" onclick="navigate('notifications')">
+          <i class="ti ti-bell"></i><span class="badge-dot"></span>
+        </button>
+      </header>
+      <div style="padding:4px 16px 14px;"><p class="muted-text" id="favs-count">4 produits surveillés · Alertes activées</p></div>
+      <div id="favorites-list"></div>
+      <div style="padding:12px 16px 24px;">
+        <div class="info-banner green">
+          <i class="ti ti-bell"></i>
+          <div><strong>Alertes de prix actives</strong><br><span style="font-size:12px;">Vous serez notifié dès qu'un prix baisse</span></div>
         </div>
       </div>
     </div>
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
+      <button class="nav-item" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
+      <button class="nav-item" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
+      <button class="nav-item active" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
+      <button class="nav-item" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
+    </nav>
+  </div>
 
-    <!-- ==================== TOAST ==================== -->
-    <div id="toast" class="toast" aria-live="polite"></div>
+  <!-- NOTIFICATIONS -->
+  <div id="screen-notifications" class="screen">
+    <div class="screen-scroll">
+      <header class="topbar-simple">
+        <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+        <span class="topbar-title">Notifications</span>
+        <button class="text-btn" onclick="markAllRead()">Tout lire</button>
+      </header>
+      <div id="notifications-list"></div>
+    </div>
+  </div>
 
-    <!-- ==================== ADD PROMO MODAL ==================== -->
-    <div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
-      <div class="modal-card" onclick="event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Nouvelle promotion</h3>
-          <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label>Produit</label>
-            <div class="input-wrap">
-              <i class="ti ti-package"></i>
-              <input type="text" placeholder="Nom du produit">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Prix promotionnel (DA)</label>
-            <div class="input-wrap">
-              <i class="ti ti-currency-dollar"></i>
-              <input type="number" placeholder="1890">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Prix original (DA)</label>
-            <div class="input-wrap">
-              <i class="ti ti-currency-dollar"></i>
-              <input type="number" placeholder="2700">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Catégorie</label>
-            <div class="input-wrap">
-              <i class="ti ti-category"></i>
-              <select>
-                <option>Alimentaire</option>
-                <option>Électroménager</option>
-                <option>Téléphones</option>
-                <option>Mode</option>
-                <option>Beauté</option>
-                <option>Pharmacie</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Date d'expiration</label>
-            <div class="input-wrap">
-              <i class="ti ti-calendar"></i>
-              <input type="date">
-            </div>
-          </div>
-          <button class="btn-primary" onclick="submitPromo()">
-            <i class="ti ti-check"></i> Publier la promotion
-          </button>
+  <!-- MAP -->
+  <div id="screen-map" class="screen">
+    <div class="screen-scroll">
+      <header class="topbar-simple">
+        <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+        <span class="topbar-title">Carte des magasins</span>
+        <button class="icon-btn" onclick="locateMe()"><i class="ti ti-current-location"></i></button>
+      </header>
+      <!-- Real Leaflet Map -->
+      <div id="leaflet-map" style="height:240px; margin:10px 16px; border-radius:16px; overflow:hidden; border:1px solid var(--dz-border); z-index:1;"></div>
+      <div class="filter-chips-row">
+        <button class="chip map-filter-chip active" onclick="filterMapStores('tous')">Tous</button>
+        <button class="chip map-filter-chip" onclick="filterMapStores('alimentaire')">Alimentaire</button>
+        <button class="chip map-filter-chip" onclick="filterMapStores('electro')">Électro</button>
+        <button class="chip map-filter-chip" onclick="filterMapStores('telephones')">Téléphones</button>
+        <button class="chip map-filter-chip" onclick="filterMapStores('mode')">Mode</button>
+        <button class="chip map-filter-chip" onclick="filterMapStores('pharmacie')">Pharmacie</button>
+      </div>
+      <div style="padding:6px 16px 6px; font-size:13px; font-weight:700; color:var(--dz-text);">Magasins proches</div>
+      <div id="stores-list"></div>
+      <div style="height:20px;"></div>
+    </div>
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
+      <button class="nav-item" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
+      <button class="nav-item" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
+      <button class="nav-item" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
+      <button class="nav-item" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
+    </nav>
+  </div>
+
+  <!-- PROFILE -->
+  <div id="screen-profile" class="screen">
+    <div class="screen-scroll">
+      <div class="profile-header">
+        <div class="profile-avatar-large" id="profile-avatar">AK</div>
+        <div class="profile-name" id="profile-name">Ahmed Kaddouri</div>
+        <div class="profile-email" id="profile-email">ahmed.k@gmail.com</div>
+        <div class="profile-stats-row">
+          <div class="pstat"><div class="pstat-n" id="stat-favs">4</div><div class="pstat-l">Favoris</div></div>
+          <div class="pstat-sep"></div>
+          <div class="pstat"><div class="pstat-n">28</div><div class="pstat-l">Alertes</div></div>
+          <div class="pstat-sep"></div>
+          <div class="pstat"><div class="pstat-n">12,400 DA</div><div class="pstat-l">Économisé</div></div>
         </div>
       </div>
+      <div class="menu-list">
+        <div class="menu-section-title">MON COMPTE</div>
+        <button class="menu-item" onclick="navigate('favorites')">
+          <div class="menu-icon green"><i class="ti ti-heart"></i></div><span class="menu-label">Mes favoris</span><i class="ti ti-chevron-right menu-arrow"></i>
+        </button>
+        <button class="menu-item" onclick="navigate('notifications')">
+          <div class="menu-icon orange"><i class="ti ti-bell"></i></div><span class="menu-label">Alertes prix</span><i class="ti ti-chevron-right menu-arrow"></i>
+        </button>
+        <button class="menu-item" onclick="navigate('map')">
+          <div class="menu-icon green"><i class="ti ti-map-pin"></i></div><span class="menu-label">Magasins proches</span><i class="ti ti-chevron-right menu-arrow"></i>
+        </button>
+        <div class="menu-section-title">COMMERÇANT</div>
+        <button class="menu-item merchant-item" onclick="navigate('dashboard')">
+          <div class="menu-icon white"><i class="ti ti-building-store"></i></div>
+          <span class="menu-label" style="color:#fff;">Espace Commerçant</span>
+          <i class="ti ti-chevron-right menu-arrow" style="color:rgba(255,255,255,0.7);"></i>
+        </button>
+        <div class="menu-section-title">PARAMÈTRES</div>
+        <button class="menu-item"><div class="menu-icon gray"><i class="ti ti-settings"></i></div><span class="menu-label">Paramètres</span><i class="ti ti-chevron-right menu-arrow"></i></button>
+        <button class="menu-item"><div class="menu-icon gray"><i class="ti ti-help-circle"></i></div><span class="menu-label">Aide & Support</span><i class="ti ti-chevron-right menu-arrow"></i></button>
+        <button class="menu-item danger-item" onclick="logoutUser()">
+          <div class="menu-icon red"><i class="ti ti-logout"></i></div><span class="menu-label" style="color:#E24B4A;">Déconnexion</span>
+        </button>
+      </div>
+      <div class="app-version">DZ Promo v2.0 · 🇩🇿</div>
     </div>
+    <nav class="bottom-nav">
+      <button class="nav-item" onclick="navigate('home')"><i class="ti ti-home"></i><span>Accueil</span></button>
+      <button class="nav-item" onclick="navigate('search')"><i class="ti ti-search"></i><span>Recherche</span></button>
+      <button class="nav-item" onclick="navigate('compare')"><i class="ti ti-git-compare"></i><span>Comparer</span></button>
+      <button class="nav-item" onclick="navigate('favorites')"><i class="ti ti-heart"></i><span>Favoris</span></button>
+      <button class="nav-item active" onclick="navigate('profile')"><i class="ti ti-user"></i><span>Profil</span></button>
+    </nav>
+  </div>
 
-  </div><!-- end #app -->
+  <!-- DASHBOARD (Merchant) -->
+  <div id="screen-dashboard" class="screen">
+    <div class="screen-scroll">
+      <div class="dashboard-header">
+        <button class="back-btn-white" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+        <div class="dash-store-info">
+          <div class="dash-store-icon">🛒</div>
+          <div><div class="dash-store-name" id="dash-store-name">Mon Magasin</div>
+            <div class="dash-store-badge" id="dash-store-badge">Compte Pro · Actif</div></div>
+        </div>
+        <button class="icon-btn-white" onclick="navigate('notifications')"><i class="ti ti-bell"></i></button>
+      </div>
+      <!-- Trial countdown injected here -->
+      <div id="trial-countdown-area"></div>
+      <div style="padding:16px;">
+        <h3 class="section-title" style="margin-bottom:12px;">Statistiques du mois</h3>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon green"><i class="ti ti-eye"></i></div><div class="stat-value">3,248</div><div class="stat-label">Vues des offres</div><div class="stat-delta up">↑ +18%</div></div>
+          <div class="stat-card"><div class="stat-icon orange"><i class="ti ti-pointer"></i></div><div class="stat-value">486</div><div class="stat-label">Clics magasin</div><div class="stat-delta up">↑ +24%</div></div>
+          <div class="stat-card"><div class="stat-icon purple"><i class="ti ti-tag"></i></div><div class="stat-value">23</div><div class="stat-label">Promos actives</div><div class="stat-delta neutral">— Stable</div></div>
+          <div class="stat-card"><div class="stat-icon blue"><i class="ti ti-heart"></i></div><div class="stat-value">142</div><div class="stat-label">Nouveaux favoris</div><div class="stat-delta up">↑ +31%</div></div>
+        </div>
+      </div>
+      <div style="padding:0 16px 16px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+          <h3 class="section-title">Promotions actives</h3>
+          <button class="add-promo-btn" onclick="navigate('add-product')"><i class="ti ti-plus"></i> Ajouter</button>
+        </div>
+        <div id="dashboard-promos"></div>
+      </div>
+      <div style="padding:0 16px 16px;">
+        <button class="btn-primary" onclick="navigate('add-product')"><i class="ti ti-plus"></i> Publier une nouvelle promotion</button>
+        <button class="btn-secondary" style="margin-top:10px;" onclick="navigate('subscription')"><i class="ti ti-crown"></i> Abonnement Premium — 1,000 DA à vie</button>
+      </div>
+    </div>
+  </div>
 
-  <!-- Service Worker Registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('SW registered:', reg.scope))
-          .catch(err => console.log('SW error:', err));
+  <!-- SUBSCRIPTION SCREEN -->
+  <div id="screen-subscription" class="screen">
+    <div class="screen-scroll">
+      <header class="topbar-simple">
+        <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+        <span class="topbar-title">Abonnement Premium</span>
+      </header>
+      <div id="subscription-content"></div>
+    </div>
+  </div>
+
+  <!-- ADD PRODUCT SCREEN -->
+  <div id="screen-add-product" class="screen">
+    <div class="screen-scroll">
+      <header class="topbar-simple">
+        <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+        <span class="topbar-title">Nouvelle promotion</span>
+      </header>
+      <div id="add-product-content"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+</div><!-- #app -->
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- App scripts -->
+<script src="js/data.js"></script>
+<script src="js/search.js"></script>
+<script src="js/merchant.js"></script>
+<script src="js/map.js"></script>
+<script src="js/app.js"></script>
+
+<!-- Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  });
+}
+</script>
+
+<!-- FIREBASE v2 — Auth + Firestore + Storage -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signInWithPopup, GoogleAuthProvider, onAuthStateChanged,
+  signOut, sendPasswordResetEmail, updateProfile
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {
+  getFirestore, doc, setDoc, getDoc, collection,
+  addDoc, getDocs, deleteDoc, serverTimestamp, query, where, orderBy
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyB-YwlA3CRSMo20HRkJnNeRNvW5vcMpkhg",
+  authDomain:        "dz-promo-ffd32.firebaseapp.com",
+  projectId:         "dz-promo-ffd32",
+  storageBucket:     "dz-promo-ffd32.firebasestorage.app",
+  messagingSenderId: "588370328678",
+  appId:             "1:588370328678:web:c25c1fa8d99e9e3703c1a7"
+};
+
+const app      = initializeApp(firebaseConfig);
+const auth     = getAuth(app);
+const db       = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+// Expose globally for merchant.js
+window._auth = auth; window._db = db;
+
+/* ── REGISTER ── */
+window.registerUser = async () => {
+  const name     = document.getElementById('reg-name')?.value?.trim();
+  const email    = document.getElementById('reg-email')?.value?.trim();
+  const password = document.getElementById('reg-password')?.value;
+  const confirm  = document.getElementById('reg-confirm')?.value;
+  const terms    = document.getElementById('reg-terms')?.checked;
+  const role     = window._regRole || 'user';
+  const store    = document.getElementById('reg-store')?.value?.trim();
+  const address  = document.getElementById('reg-address')?.value?.trim();
+
+  if (!name || !email || !password) { showToast('⚠️ Remplissez tous les champs'); return; }
+  if (password.length < 6)          { showToast('⚠️ Mot de passe : 6 caractères min'); return; }
+  if (password !== confirm)          { showToast('⚠️ Les mots de passe ne correspondent pas'); return; }
+  if (!terms)                        { showToast('⚠️ Acceptez les conditions d\'utilisation'); return; }
+  if (role === 'merchant' && !store) { showToast('⚠️ Entrez le nom de votre magasin'); return; }
+
+  try {
+    showToast('⏳ Création du compte...');
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(cred.user, { displayName: name });
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      name, email, role, city: 'Oran',
+      storeName: store || null,
+      storeAddress: address || null,
+      trialStart: serverTimestamp(),
+      isPremium: false,
+      createdAt: serverTimestamp()
+    });
+    showToast('🎉 Bienvenue ' + name.split(' ')[0] + ' !');
+  } catch(e) { showToast('❌ ' + fbErr(e.code)); }
+};
+
+/* ── LOGIN ── */
+window.loginUser = async () => {
+  const email    = document.getElementById('login-email')?.value?.trim();
+  const password = document.getElementById('login-password')?.value;
+  if (!email || !password) { showToast('⚠️ Email et mot de passe requis'); return; }
+  try {
+    showToast('⏳ Connexion...');
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch(e) { showToast('❌ ' + fbErr(e.code)); }
+};
+
+/* ── GOOGLE ── */
+window.loginGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user   = result.user;
+    const snap   = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists()) {
+      await setDoc(doc(db, 'users', user.uid), {
+        name: user.displayName || 'Utilisateur', email: user.email,
+        role: 'user', city: 'Oran', isPremium: false,
+        trialStart: serverTimestamp(), createdAt: serverTimestamp()
       });
     }
-  </script>
+  } catch(e) { if (e.code !== 'auth/popup-closed-by-user') showToast('❌ ' + fbErr(e.code)); }
+};
 
-  <!-- App Scripts -->
-  <script src="js/data.js"></script>
-  <script src="js/app.js"></script>
+/* ── RESET PASSWORD ── */
+window.resetPassword = async () => {
+  const email = document.getElementById('login-email')?.value?.trim();
+  if (!email) { showToast('⚠️ Entrez votre email d\'abord'); return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showToast('📧 Email de réinitialisation envoyé !');
+  } catch(e) { showToast('❌ ' + fbErr(e.code)); }
+};
+
+/* ── LOGOUT ── */
+window.logoutUser = async () => {
+  await signOut(auth);
+  showToast('👋 À bientôt !');
+};
+
+/* ── AUTH STATE ── */
+onAuthStateChanged(auth, async (user) => {
+  const splash = document.getElementById('screen-splash');
+  if (splash) splash.classList.remove('active');
+
+  if (user) {
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (snap.exists()) {
+        const d = snap.data();
+        DZ.user.name     = d.name || user.displayName || 'Utilisateur';
+        DZ.user.email    = d.email || user.email;
+        DZ.user.role     = d.role || 'user';
+        DZ.user.uid      = user.uid;
+        DZ.user.isPremium = d.isPremium || false;
+        DZ.user.trialStart = d.trialStart?.seconds ? new Date(d.trialStart.seconds * 1000) : new Date();
+        DZ.user.initials = DZ.user.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+        if (d.storeName) DZ.user.storeName = d.storeName;
+        updateUIForUser(DZ.user);
+        loadFavsFromDB(user.uid);
+      }
+    } catch(_) {}
+    navigate('home');
+  } else {
+    navigate('auth');
+  }
+});
+
+/* ── FAVORITES SYNC ── */
+window.saveFavoriteToDB = async (productId, add) => {
+  const uid = auth.currentUser?.uid;
+  if (!uid) return;
+  const ref = doc(db, 'favorites', uid, 'items', String(productId));
+  if (add) await setDoc(ref, { productId, savedAt: serverTimestamp() });
+  else     await deleteDoc(ref);
+};
+
+async function loadFavsFromDB(uid) {
+  try {
+    const snap = await getDocs(collection(db, 'favorites', uid, 'items'));
+    DZ.user.favorites = snap.docs.map(d => d.data().productId);
+  } catch(_) {}
+}
+
+/* ── UI UPDATE ── */
+function updateUIForUser(u) {
+  const initials = u.initials || 'U';
+  document.querySelectorAll('.profile-avatar-large, .avatar-mini').forEach(el => el.textContent = initials);
+  const pName  = document.querySelector('.profile-name');
+  const pEmail = document.querySelector('.profile-email');
+  if (pName)  pName.textContent  = u.name  || '';
+  if (pEmail) pEmail.textContent = u.email || '';
+  const dname = document.getElementById('dash-store-name');
+  if (dname) dname.textContent = u.storeName || u.name || 'Mon Magasin';
+}
+
+/* ── ERROR MESSAGES ── */
+function fbErr(code) {
+  return ({
+    'auth/email-already-in-use':   'Email déjà utilisé',
+    'auth/weak-password':          'Mot de passe trop court (6 car. min)',
+    'auth/wrong-password':         'Email ou mot de passe incorrect',
+    'auth/invalid-credential':     'Email ou mot de passe incorrect',
+    'auth/user-not-found':         'Aucun compte avec cet email',
+    'auth/invalid-email':          'Adresse email invalide',
+    'auth/too-many-requests':      'Trop de tentatives, réessayez plus tard',
+    'auth/network-request-failed': 'Erreur réseau',
+    'auth/user-disabled':          'Compte désactivé',
+    'auth/popup-blocked':          'Popup bloquée, autorisez les popups'
+  })[code] || 'Erreur : ' + code;
+}
+</script>
 </body>
 </html>
