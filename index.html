@@ -584,7 +584,7 @@ if ('serviceWorker' in navigator) {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signInWithPopup, GoogleAuthProvider, onAuthStateChanged,
+  signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged,
   signOut, sendPasswordResetEmail, updateProfile
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {
@@ -603,6 +603,25 @@ const firebaseConfig = {
 
 const app      = initializeApp(firebaseConfig);
 const auth     = getAuth(app);
+
+// Handle Google redirect result on page load
+getRedirectResult(auth).then(async result => {
+  if (!result?.user) return;
+  const user = result.user;
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  if (!snap.exists()) {
+    await setDoc(doc(db, 'users', user.uid), {
+      name: user.displayName || 'Utilisateur',
+      email: user.email,
+      role: window._regRole || 'user',
+      city: 'Oran', isPremium: false,
+      trialStart: serverTimestamp(), createdAt: serverTimestamp()
+    });
+  }
+  showToast('✅ Connecté avec Google !');
+}).catch(e => {
+  if (e.code && e.code !== 'auth/null-user') showToast('❌ ' + fbErr(e.code));
+});
 const db       = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
@@ -656,17 +675,8 @@ window.loginUser = async () => {
 /* ── GOOGLE ── */
 window.loginGoogle = async () => {
   try {
-    const result = await signInWithPopup(auth, provider);
-    const user   = result.user;
-    const snap   = await getDoc(doc(db, 'users', user.uid));
-    if (!snap.exists()) {
-      await setDoc(doc(db, 'users', user.uid), {
-        name: user.displayName || 'Utilisateur', email: user.email,
-        role: 'user', city: 'Oran', isPremium: false,
-        trialStart: serverTimestamp(), createdAt: serverTimestamp()
-      });
-    }
-  } catch(e) { if (e.code !== 'auth/popup-closed-by-user') showToast('❌ ' + fbErr(e.code)); }
+    await signInWithRedirect(auth, provider);
+  } catch(e) { showToast('❌ ' + fbErr(e.code)); }
 };
 
 /* ── RESET PASSWORD ── */
