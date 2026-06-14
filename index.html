@@ -583,13 +583,25 @@ if ('serviceWorker' in navigator) {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {
-  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged,
-  signOut, sendPasswordResetEmail, updateProfile
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+  onAuthStateChanged,
+  signOut,
+  sendPasswordResetEmail,
+  updateProfile,
+  setPersistence,
+  browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {
-  getFirestore, doc, setDoc, getDoc, collection,
-  addDoc, getDocs, deleteDoc, serverTimestamp, query, where, orderBy
+  getFirestore,
+  doc, setDoc, getDoc,
+  collection, getDocs, deleteDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -603,37 +615,16 @@ const firebaseConfig = {
 
 const app      = initializeApp(firebaseConfig);
 const auth     = getAuth(app);
-
-// Handle Google redirect result on page load
-// onAuthStateChanged handles everything — getRedirectResult just creates profile if needed
-getRedirectResult(auth).then(async result => {
-  if (!result?.user) return;
-  const user = result.user;
-  try {
-    const snap = await getDoc(doc(db, 'users', user.uid));
-    if (!snap.exists()) {
-      await setDoc(doc(db, 'users', user.uid), {
-        name: user.displayName || user.email.split('@')[0],
-        email: user.email,
-        role: 'user',
-        city: 'Oran',
-        isPremium: false,
-        trialStart: serverTimestamp(),
-        createdAt: serverTimestamp()
-      });
-    }
-  } catch(_) {}
-  // onAuthStateChanged will trigger navigate('home') automatically
-}).catch(e => {
-  console.warn('Redirect result error:', e.code, e.message);
-});
 const db       = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-// Expose globally for merchant.js
-window._auth = auth; window._db = db;
+window._auth = auth;
+window._db   = db;
 
-/* ── REGISTER ── */
+// ── Force local persistence so session survives redirects ──
+await setPersistence(auth, browserLocalPersistence);
+
+// ── REGISTER ──────────────────────────────────────────────
 window.registerUser = async () => {
   const name     = document.getElementById('reg-name')?.value?.trim();
   const email    = document.getElementById('reg-email')?.value?.trim();
@@ -647,7 +638,7 @@ window.registerUser = async () => {
   if (!name || !email || !password) { showToast('⚠️ Remplissez tous les champs'); return; }
   if (password.length < 6)          { showToast('⚠️ Mot de passe : 6 caractères min'); return; }
   if (password !== confirm)          { showToast('⚠️ Les mots de passe ne correspondent pas'); return; }
-  if (!terms)                        { showToast('⚠️ Acceptez les conditions d\'utilisation'); return; }
+  if (!terms)                        { showToast('⚠️ Acceptez les conditions d'utilisation'); return; }
   if (role === 'merchant' && !store) { showToast('⚠️ Entrez le nom de votre magasin'); return; }
 
   try {
@@ -658,15 +649,15 @@ window.registerUser = async () => {
       name, email, role, city: 'Oran',
       storeName: store || null,
       storeAddress: address || null,
-      trialStart: serverTimestamp(),
       isPremium: false,
+      trialStart: serverTimestamp(),
       createdAt: serverTimestamp()
     });
-    showToast('🎉 Bienvenue ' + name.split(' ')[0] + ' !');
+    // onAuthStateChanged will navigate to home
   } catch(e) { showToast('❌ ' + fbErr(e.code)); }
 };
 
-/* ── LOGIN ── */
+// ── LOGIN ─────────────────────────────────────────────────
 window.loginUser = async () => {
   const email    = document.getElementById('login-email')?.value?.trim();
   const password = document.getElementById('login-password')?.value;
@@ -674,91 +665,121 @@ window.loginUser = async () => {
   try {
     showToast('⏳ Connexion...');
     await signInWithEmailAndPassword(auth, email, password);
+    // onAuthStateChanged handles navigation
   } catch(e) { showToast('❌ ' + fbErr(e.code)); }
 };
 
-/* ── GOOGLE ── */
+// ── GOOGLE SIGN-IN ────────────────────────────────────────
+// Strategy: try popup first (works on desktop), fall back to redirect (mobile)
 window.loginGoogle = async () => {
   try {
-    await signInWithRedirect(auth, provider);
-  } catch(e) { showToast('❌ ' + fbErr(e.code)); }
+    // Try popup first
+    const result = await signInWithPopup(auth, provider);
+    await ensureProfile(result.user);
+  } catch(e) {
+    if (e.code === 'auth/popup-blocked' ||
+        e.code === 'auth/popup-closed-by-user' ||
+        e.code === 'auth/cancelled-popup-request') {
+      // Popup blocked → fall back to redirect
+      try {
+        await signInWithRedirect(auth, provider);
+      } catch(e2) { showToast('❌ ' + fbErr(e2.code)); }
+    } else if (e.code !== 'auth/popup-closed-by-user') {
+      showToast('❌ ' + fbErr(e.code));
+    }
+  }
 };
 
-/* ── RESET PASSWORD ── */
-window.resetPassword = async () => {
-  const email = document.getElementById('login-email')?.value?.trim();
-  if (!email) { showToast('⚠️ Entrez votre email d\'abord'); return; }
+// ── HANDLE REDIRECT RESULT (called on every page load) ───
+try {
+  const result = await getRedirectResult(auth);
+  if (result?.user) {
+    await ensureProfile(result.user);
+    // onAuthStateChanged will fire and navigate to home
+  }
+} catch(e) {
+  if (e.code && e.code !== 'auth/null-user' && e.code !== 'auth/no-auth-event') {
+    console.warn('Redirect result:', e.code);
+  }
+}
+
+// ── ENSURE FIRESTORE PROFILE EXISTS ───────────────────────
+async function ensureProfile(user) {
   try {
-    await sendPasswordResetEmail(auth, email);
-    showToast('📧 Email de réinitialisation envoyé !');
-  } catch(e) { showToast('❌ ' + fbErr(e.code)); }
-};
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists()) {
+      await setDoc(doc(db, 'users', user.uid), {
+        name:      user.displayName || user.email.split('@')[0],
+        email:     user.email,
+        role:      'user',
+        city:      'Oran',
+        isPremium: false,
+        trialStart: serverTimestamp(),
+        createdAt:  serverTimestamp()
+      });
+    }
+  } catch(_) {}
+}
 
-/* ── LOGOUT ── */
-window.logoutUser = async () => {
-  await signOut(auth);
-  showToast('👋 À bientôt !');
-};
-
-/* ── AUTH STATE ── */
+// ── AUTH STATE LISTENER ───────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  // Remove splash screen
+  // Remove splash
   const splash = document.getElementById('screen-splash');
   if (splash) splash.classList.remove('active');
 
   if (user) {
     try {
-      let snap = await getDoc(doc(db, 'users', user.uid));
-
-      // If profile does not exist yet (Google sign-in first time), create it
-      if (!snap.exists()) {
-        await setDoc(doc(db, 'users', user.uid), {
-          name:      user.displayName || user.email.split('@')[0],
-          email:     user.email,
-          role:      'user',
-          city:      'Oran',
-          isPremium: false,
-          trialStart: serverTimestamp(),
-          createdAt:  serverTimestamp()
-        });
-        snap = await getDoc(doc(db, 'users', user.uid));
-      }
-
+      await ensureProfile(user);
+      const snap = await getDoc(doc(db, 'users', user.uid));
       if (snap.exists()) {
         const d = snap.data();
-        DZ.user.name      = d.name      || user.displayName || 'Utilisateur';
-        DZ.user.email     = d.email     || user.email;
-        DZ.user.role      = d.role      || 'user';
-        DZ.user.uid       = user.uid;
-        DZ.user.isPremium = d.isPremium || false;
+        DZ.user.name       = d.name  || user.displayName || 'Utilisateur';
+        DZ.user.email      = d.email || user.email;
+        DZ.user.role       = d.role  || 'user';
+        DZ.user.uid        = user.uid;
+        DZ.user.isPremium  = d.isPremium || false;
         DZ.user.trialStart = d.trialStart?.seconds
           ? new Date(d.trialStart.seconds * 1000) : new Date();
-        DZ.user.initials  = DZ.user.name
+        DZ.user.initials   = DZ.user.name
           .split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
         if (d.storeName) DZ.user.storeName = d.storeName;
         updateUIForUser(DZ.user);
         loadFavsFromDB(user.uid);
       }
-    } catch(err) {
-      console.warn('Profile load error:', err);
-    }
+    } catch(err) { console.warn('Profile error:', err); }
 
-    // Always navigate to home when authenticated
     navigate('home');
-    showToast('✅ Bienvenue ' + (DZ.user.name?.split(' ')[0] || '') + ' !');
 
   } else {
     navigate('auth');
   }
 });
 
-/* ── FAVORITES SYNC ── */
+// ── LOGOUT ────────────────────────────────────────────────
+window.logoutUser = async () => {
+  await signOut(auth);
+  showToast('👋 À bientôt !');
+};
+
+// ── RESET PASSWORD ────────────────────────────────────────
+window.resetPassword = async () => {
+  const email = document.getElementById('login-email')?.value?.trim();
+  if (!email) { showToast('⚠️ Entrez votre email d'abord'); return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showToast('📧 Email de réinitialisation envoyé !');
+  } catch(e) { showToast('❌ ' + fbErr(e.code)); }
+};
+
+// ── FAVORITES SYNC ────────────────────────────────────────
 window.saveFavoriteToDB = async (productId, add) => {
   const uid = auth.currentUser?.uid;
   if (!uid) return;
   const ref = doc(db, 'favorites', uid, 'items', String(productId));
-  if (add) await setDoc(ref, { productId, savedAt: serverTimestamp() });
-  else     await deleteDoc(ref);
+  try {
+    if (add) await setDoc(ref, { productId, savedAt: serverTimestamp() });
+    else     await deleteDoc(ref);
+  } catch(_) {}
 };
 
 async function loadFavsFromDB(uid) {
@@ -768,32 +789,37 @@ async function loadFavsFromDB(uid) {
   } catch(_) {}
 }
 
-/* ── UI UPDATE ── */
+// ── UI UPDATE ─────────────────────────────────────────────
 function updateUIForUser(u) {
   const initials = u.initials || 'U';
-  document.querySelectorAll('.profile-avatar-large, .avatar-mini').forEach(el => el.textContent = initials);
-  const pName  = document.querySelector('.profile-name');
-  const pEmail = document.querySelector('.profile-email');
-  if (pName)  pName.textContent  = u.name  || '';
-  if (pEmail) pEmail.textContent = u.email || '';
+  document.querySelectorAll('.profile-avatar-large, .avatar-mini')
+    .forEach(el => el.textContent = initials);
+  const pName  = document.getElementById('profile-name');
+  const pEmail = document.getElementById('profile-email');
+  const pAvatar = document.getElementById('profile-avatar');
+  const mini    = document.getElementById('avatar-mini');
+  if (pName)   pName.textContent   = u.name  || '';
+  if (pEmail)  pEmail.textContent  = u.email || '';
+  if (pAvatar) pAvatar.textContent = initials;
+  if (mini)    mini.textContent    = initials;
   const dname = document.getElementById('dash-store-name');
   if (dname) dname.textContent = u.storeName || u.name || 'Mon Magasin';
 }
 
-/* ── ERROR MESSAGES ── */
+// ── ERROR MESSAGES ────────────────────────────────────────
 function fbErr(code) {
   return ({
-    'auth/email-already-in-use':   'Email déjà utilisé',
-    'auth/weak-password':          'Mot de passe trop court (6 car. min)',
-    'auth/wrong-password':         'Email ou mot de passe incorrect',
-    'auth/invalid-credential':     'Email ou mot de passe incorrect',
-    'auth/user-not-found':         'Aucun compte avec cet email',
-    'auth/invalid-email':          'Adresse email invalide',
-    'auth/too-many-requests':      'Trop de tentatives, réessayez plus tard',
-    'auth/network-request-failed': 'Erreur réseau',
-    'auth/user-disabled':          'Compte désactivé',
-    'auth/popup-blocked':          'Popup bloquée, autorisez les popups'
-  })[code] || 'Erreur : ' + code;
+    'auth/email-already-in-use':    'Email déjà utilisé',
+    'auth/weak-password':           'Mot de passe trop court (6 car. min)',
+    'auth/wrong-password':          'Email ou mot de passe incorrect',
+    'auth/invalid-credential':      'Email ou mot de passe incorrect',
+    'auth/user-not-found':          'Aucun compte avec cet email',
+    'auth/invalid-email':           'Adresse email invalide',
+    'auth/too-many-requests':       'Trop de tentatives, réessayez plus tard',
+    'auth/network-request-failed':  'Erreur réseau, vérifiez votre connexion',
+    'auth/user-disabled':           'Compte désactivé',
+    'auth/popup-blocked':           'Popup bloquée — redirection en cours...',
+  })[code] || ('Erreur : ' + (code || 'inconnue'));
 }
 </script>
 </body>
