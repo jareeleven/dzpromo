@@ -591,32 +591,21 @@ function resetPassword() { if(window._fbReady) window._resetPassword();  else wi
 
 <!-- FIREBASE v2 — Auth + Firestore + Storage -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { initializeApp }         from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
-  onAuthStateChanged,
-  signOut,
-  sendPasswordResetEmail,
-  updateProfile,
-  setPersistence,
-  browserLocalPersistence
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
+  onAuthStateChanged, signOut, sendPasswordResetEmail, updateProfile,
+  setPersistence, browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {
-  getFirestore,
-  doc, setDoc, getDoc,
-  collection, getDocs, deleteDoc,
-  serverTimestamp
+  getFirestore, doc, setDoc, getDoc,
+  collection, getDocs, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyB-YwlA3CRSMo20HRkJnNeRNvW5vcMpkhg",
-  authDomain:        "dz-promo-ffd32.firebaseapp.com",
+  authDomain:        "jareeleven.github.io",
   projectId:         "dz-promo-ffd32",
   storageBucket:     "dz-promo-ffd32.firebasestorage.app",
   messagingSenderId: "588370328678",
@@ -631,10 +620,109 @@ const provider = new GoogleAuthProvider();
 window._auth = auth;
 window._db   = db;
 
-// ── Force local persistence so session survives redirects ──
+// ── PERSISTENCE : survive redirects ──────────────────────
 await setPersistence(auth, browserLocalPersistence);
 
-// ── REGISTER ──────────────────────────────────────────────
+// ── CRÉER PROFIL FIRESTORE ────────────────────────────────
+async function ensureProfile(user, role) {
+  try {
+    const ref  = doc(db, 'users', user.uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        name:      user.displayName || user.email.split('@')[0],
+        email:     user.email,
+        role:      role || 'user',
+        city:      'Oran',
+        isPremium: false,
+        trialStart: serverTimestamp(),
+        createdAt:  serverTimestamp()
+      });
+    }
+    return (await getDoc(ref)).data();
+  } catch(e) { console.error('ensureProfile:', e); return null; }
+}
+
+// ── CHARGER PROFIL DANS DZ.user ──────────────────────────
+async function loadProfile(user) {
+  try {
+    const d = await ensureProfile(user);
+    if (!d) return;
+    DZ.user.name       = d.name  || user.displayName || 'Utilisateur';
+    DZ.user.email      = d.email || user.email;
+    DZ.user.role       = d.role  || 'user';
+    DZ.user.uid        = user.uid;
+    DZ.user.isPremium  = d.isPremium || false;
+    DZ.user.trialStart = d.trialStart?.seconds
+      ? new Date(d.trialStart.seconds * 1000) : new Date();
+    DZ.user.initials   = DZ.user.name
+      .split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+    if (d.storeName) DZ.user.storeName = d.storeName;
+
+    // Update UI
+    const ini = DZ.user.initials;
+    ['profile-avatar','avatar-mini'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = ini;
+    });
+    document.querySelectorAll('.profile-avatar-large,.avatar-mini')
+      .forEach(el => el.textContent = ini);
+    const pn = document.getElementById('profile-name');
+    const pe = document.getElementById('profile-email');
+    if (pn) pn.textContent = DZ.user.name;
+    if (pe) pe.textContent = DZ.user.email;
+    const dn = document.getElementById('dash-store-name');
+    if (dn) dn.textContent = d.storeName || DZ.user.name;
+
+    // Load favorites
+    try {
+      const favs = await getDocs(collection(db,'favorites',user.uid,'items'));
+      DZ.user.favorites = favs.docs.map(d => d.data().productId);
+    } catch(_) {}
+  } catch(e) { console.error('loadProfile:', e); }
+}
+
+// ── AUTH STATE LISTENER ───────────────────────────────────
+// This is the single source of truth for navigation
+let _authResolved = false;
+
+onAuthStateChanged(auth, async (user) => {
+  console.log('[Auth] state changed, user:', user ? user.email : 'null');
+
+  // Hide splash on first call
+  if (!_authResolved) {
+    _authResolved = true;
+    const splash = document.getElementById('screen-splash');
+    if (splash) splash.classList.remove('active');
+  }
+
+  if (user) {
+    console.log('[Auth] user logged in → loading profile');
+    await loadProfile(user);
+    console.log('[Auth] navigating to home');
+    navigate('home');
+    showToast('✅ Bienvenue ' + (DZ.user.name?.split(' ')[0] || '') + ' !');
+  } else {
+    console.log('[Auth] no user → auth screen');
+    navigate('auth');
+  }
+});
+
+// ── HANDLE REDIRECT RESULT ────────────────────────────────
+// Must be called after onAuthStateChanged is set up
+try {
+  const result = await getRedirectResult(auth);
+  if (result?.user) {
+    console.log('[Google Redirect] got user:', result.user.email);
+    // onAuthStateChanged will handle navigation
+  }
+} catch(e) {
+  if (e.code !== 'auth/null-user' && e.code !== 'auth/no-auth-event') {
+    console.warn('[Redirect Error]', e.code, e.message);
+  }
+}
+
+// ── REGISTER ─────────────────────────────────────────────
 window._registerUser = async () => {
   const name     = document.getElementById('reg-name')?.value?.trim();
   const email    = document.getElementById('reg-email')?.value?.trim();
@@ -655,19 +743,19 @@ window._registerUser = async () => {
     showToast('⏳ Création du compte...');
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName: name });
-    await setDoc(doc(db, 'users', cred.user.uid), {
-      name, email, role, city: 'Oran',
+    await setDoc(doc(db,'users',cred.user.uid), {
+      name, email, role, city:'Oran',
       storeName: store || null,
       storeAddress: address || null,
       isPremium: false,
       trialStart: serverTimestamp(),
       createdAt: serverTimestamp()
     });
-    // onAuthStateChanged will navigate to home
+    // onAuthStateChanged handles navigation
   } catch(e) { showToast('❌ ' + fbErr(e.code)); }
 };
 
-// ── LOGIN ─────────────────────────────────────────────────
+// ── LOGIN EMAIL ───────────────────────────────────────────
 window._loginUser = async () => {
   const email    = document.getElementById('login-email')?.value?.trim();
   const password = document.getElementById('login-password')?.value;
@@ -679,93 +767,19 @@ window._loginUser = async () => {
   } catch(e) { showToast('❌ ' + fbErr(e.code)); }
 };
 
-// ── GOOGLE SIGN-IN ────────────────────────────────────────
-// Strategy: try popup first (works on desktop), fall back to redirect (mobile)
+// ── LOGIN GOOGLE ──────────────────────────────────────────
 window._loginGoogle = async () => {
   try {
-    // Try popup first
-    const result = await signInWithPopup(auth, provider);
-    await ensureProfile(result.user);
+    console.log('[Google] starting redirect sign-in...');
+    // Always use redirect on GitHub Pages — popup is blocked by browsers
+    await signInWithRedirect(auth, provider);
   } catch(e) {
-    if (e.code === 'auth/popup-blocked' ||
-        e.code === 'auth/popup-closed-by-user' ||
-        e.code === 'auth/cancelled-popup-request') {
-      // Popup blocked → fall back to redirect
-      try {
-        await signInWithRedirect(auth, provider);
-      } catch(e2) { showToast('❌ ' + fbErr(e2.code)); }
-    } else if (e.code !== 'auth/popup-closed-by-user') {
-      showToast('❌ ' + fbErr(e.code));
-    }
+    console.error('[Google redirect error]', e.code, e.message);
+    showToast('❌ ' + fbErr(e.code));
   }
 };
 
-// ── HANDLE REDIRECT RESULT (called on every page load) ───
-try {
-  const result = await getRedirectResult(auth);
-  if (result?.user) {
-    await ensureProfile(result.user);
-    // onAuthStateChanged will fire and navigate to home
-  }
-} catch(e) {
-  if (e.code && e.code !== 'auth/null-user' && e.code !== 'auth/no-auth-event') {
-    console.warn('Redirect result:', e.code);
-  }
-}
-
-// ── ENSURE FIRESTORE PROFILE EXISTS ───────────────────────
-async function ensureProfile(user) {
-  try {
-    const snap = await getDoc(doc(db, 'users', user.uid));
-    if (!snap.exists()) {
-      await setDoc(doc(db, 'users', user.uid), {
-        name:      user.displayName || user.email.split('@')[0],
-        email:     user.email,
-        role:      'user',
-        city:      'Oran',
-        isPremium: false,
-        trialStart: serverTimestamp(),
-        createdAt:  serverTimestamp()
-      });
-    }
-  } catch(_) {}
-}
-
-// ── AUTH STATE LISTENER ───────────────────────────────────
-onAuthStateChanged(auth, async (user) => {
-  // Remove splash
-  const splash = document.getElementById('screen-splash');
-  if (splash) splash.classList.remove('active');
-
-  if (user) {
-    try {
-      await ensureProfile(user);
-      const snap = await getDoc(doc(db, 'users', user.uid));
-      if (snap.exists()) {
-        const d = snap.data();
-        DZ.user.name       = d.name  || user.displayName || 'Utilisateur';
-        DZ.user.email      = d.email || user.email;
-        DZ.user.role       = d.role  || 'user';
-        DZ.user.uid        = user.uid;
-        DZ.user.isPremium  = d.isPremium || false;
-        DZ.user.trialStart = d.trialStart?.seconds
-          ? new Date(d.trialStart.seconds * 1000) : new Date();
-        DZ.user.initials   = DZ.user.name
-          .split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-        if (d.storeName) DZ.user.storeName = d.storeName;
-        updateUIForUser(DZ.user);
-        loadFavsFromDB(user.uid);
-      }
-    } catch(err) { console.warn('Profile error:', err); }
-
-    navigate('home');
-
-  } else {
-    navigate('auth');
-  }
-});
-
-// ── LOGOUT ────────────────────────────────────────────────
+// ── LOGOUT ───────────────────────────────────────────────
 window._logoutUser = async () => {
   await signOut(auth);
   showToast('👋 À bientôt !');
@@ -785,65 +799,43 @@ window._resetPassword = async () => {
 window._saveFavoriteToDB = async (productId, add) => {
   const uid = auth.currentUser?.uid;
   if (!uid) return;
-  const ref = doc(db, 'favorites', uid, 'items', String(productId));
+  const ref = doc(db,'favorites',uid,'items',String(productId));
   try {
     if (add) await setDoc(ref, { productId, savedAt: serverTimestamp() });
     else     await deleteDoc(ref);
   } catch(_) {}
 };
 
-async function loadFavsFromDB(uid) {
-  try {
-    const snap = await getDocs(collection(db, 'favorites', uid, 'items'));
-    DZ.user.favorites = snap.docs.map(d => d.data().productId);
-  } catch(_) {}
-}
-
-// ── UI UPDATE ─────────────────────────────────────────────
-function updateUIForUser(u) {
-  const initials = u.initials || 'U';
-  document.querySelectorAll('.profile-avatar-large, .avatar-mini')
-    .forEach(el => el.textContent = initials);
-  const pName  = document.getElementById('profile-name');
-  const pEmail = document.getElementById('profile-email');
-  const pAvatar = document.getElementById('profile-avatar');
-  const mini    = document.getElementById('avatar-mini');
-  if (pName)   pName.textContent   = u.name  || '';
-  if (pEmail)  pEmail.textContent  = u.email || '';
-  if (pAvatar) pAvatar.textContent = initials;
-  if (mini)    mini.textContent    = initials;
-  const dname = document.getElementById('dash-store-name');
-  if (dname) dname.textContent = u.storeName || u.name || 'Mon Magasin';
-}
-
-// ── EXPOSE PUBLIC API AFTER FIREBASE READY ───────────────
+// ── EXPOSE & MARK READY ───────────────────────────────────
+window.saveFavoriteToDB = window._saveFavoriteToDB;
 window._fbReady = true;
-// Run any action that was clicked before Firebase loaded
+
+// Run any action queued before Firebase loaded
 if (window._pendingAction) {
   const a = window._pendingAction;
   window._pendingAction = null;
-  if (a === 'google')    window._loginGoogle?.();
-  if (a === 'login')     window._loginUser?.();
-  if (a === 'register')  window._registerUser?.();
-  if (a === 'logout')    window._logoutUser?.();
-  if (a === 'reset')     window._resetPassword?.();
+  setTimeout(() => {
+    if (a === 'google')   window._loginGoogle?.();
+    if (a === 'login')    window._loginUser?.();
+    if (a === 'register') window._registerUser?.();
+    if (a === 'logout')   window._logoutUser?.();
+    if (a === 'reset')    window._resetPassword?.();
+  }, 100);
 }
-// Also expose saveFavoriteToDB for app.js
-window.saveFavoriteToDB = window._saveFavoriteToDB;
 
 // ── ERROR MESSAGES ────────────────────────────────────────
 function fbErr(code) {
   return ({
-    'auth/email-already-in-use':    'Email déjà utilisé',
-    'auth/weak-password':           'Mot de passe trop court (6 car. min)',
-    'auth/wrong-password':          'Email ou mot de passe incorrect',
-    'auth/invalid-credential':      'Email ou mot de passe incorrect',
-    'auth/user-not-found':          'Aucun compte avec cet email',
-    'auth/invalid-email':           'Adresse email invalide',
-    'auth/too-many-requests':       'Trop de tentatives, réessayez plus tard',
-    'auth/network-request-failed':  'Erreur réseau, vérifiez votre connexion',
-    'auth/user-disabled':           'Compte désactivé',
-    'auth/popup-blocked':           'Popup bloquée — redirection en cours...',
+    'auth/email-already-in-use':   'Email déjà utilisé',
+    'auth/weak-password':          'Mot de passe trop court (6 car. min)',
+    'auth/wrong-password':         'Email ou mot de passe incorrect',
+    'auth/invalid-credential':     'Email ou mot de passe incorrect',
+    'auth/user-not-found':         'Aucun compte avec cet email',
+    'auth/invalid-email':          'Adresse email invalide',
+    'auth/too-many-requests':      'Trop de tentatives, réessayez plus tard',
+    'auth/network-request-failed': 'Erreur réseau',
+    'auth/user-disabled':          'Compte désactivé',
+    'auth/popup-blocked':          'Popup bloquée — redirection...',
   })[code] || ('Erreur : ' + (code || 'inconnue'));
 }
 </script>
