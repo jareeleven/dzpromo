@@ -579,14 +579,29 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-<!-- Global bridge — called by onclick= before Firebase module loads -->
+<!-- Global bridge — waits for Firebase module to be ready -->
 <script>
-// These wrappers wait for Firebase to be ready before executing
-function loginGoogle()   { if(window._fbReady) window._loginGoogle();   else window._pendingAction = 'google'; }
-function loginUser()     { if(window._fbReady) window._loginUser();      else window._pendingAction = 'login'; }
-function registerUser()  { if(window._fbReady) window._registerUser();   else window._pendingAction = 'register'; }
-function logoutUser()    { if(window._fbReady) window._logoutUser();     else window._pendingAction = 'logout'; }
-function resetPassword() { if(window._fbReady) window._resetPassword();  else window._pendingAction = 'reset'; }
+function _waitAndRun(fn) {
+  if (window._fbReady) { fn(); return; }
+  // Firebase not ready yet — poll every 100ms up to 10 seconds
+  let tries = 0;
+  const interval = setInterval(() => {
+    tries++;
+    if (window._fbReady) {
+      clearInterval(interval);
+      fn();
+    } else if (tries > 100) {
+      clearInterval(interval);
+      showToast('⚠️ Erreur de chargement, rechargez la page');
+    }
+  }, 100);
+}
+
+function loginGoogle()   { _waitAndRun(() => window._loginGoogle()); }
+function loginUser()     { _waitAndRun(() => window._loginUser()); }
+function registerUser()  { _waitAndRun(() => window._registerUser()); }
+function logoutUser()    { _waitAndRun(() => window._logoutUser()); }
+function resetPassword() { _waitAndRun(() => window._resetPassword()); }
 </script>
 
 <!-- FIREBASE v2 — Auth + Firestore + Storage -->
