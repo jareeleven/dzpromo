@@ -451,7 +451,17 @@
   <!-- PROFILE -->
   <div id="screen-profile" class="screen">
     <div class="screen-scroll">
-      <div class="profile-header">
+      <!-- Profile topbar with back button -->
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px 0; background:var(--dz-green);">
+        <button onclick="navigate('home')" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+          <i class="ti ti-arrow-left" style="font-size:20px;"></i>
+        </button>
+        <span style="font-size:16px;font-weight:700;color:#fff;">Mon Profil</span>
+        <button onclick="navigate('notifications')" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <i class="ti ti-bell" style="font-size:18px;"></i>
+        </button>
+      </div>
+      <div class="profile-header" style="padding-top:16px;">
         <div class="profile-avatar-large" id="profile-avatar">AK</div>
         <div class="profile-name" id="profile-name">Ahmed Kaddouri</div>
         <div class="profile-email" id="profile-email">ahmed.k@gmail.com</div>
@@ -554,6 +564,40 @@
         <span class="topbar-title">Nouvelle promotion</span>
       </header>
       <div id="add-product-content"></div>
+    </div>
+  </div>
+
+
+  <!-- Payment Confirmation Overlay -->
+  <div id="payment-confirm-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:300; align-items:flex-end; justify-content:center;">
+    <div style="background:var(--dz-bg); border-radius:24px 24px 0 0; padding:28px 24px 40px; width:100%; max-width:430px; text-align:center;">
+      <div style="font-size:56px; margin-bottom:16px;">✅</div>
+      <div style="font-size:20px; font-weight:800; color:var(--dz-text); margin-bottom:8px;">Preuve envoyee !</div>
+      <div style="font-size:14px; color:var(--dz-muted); line-height:1.6; margin-bottom:20px;">
+        Votre preuve de paiement a ete recue. Notre equipe va verifier votre paiement et activer votre compte Premium sous <strong style="color:var(--dz-green);">24 heures</strong>.
+      </div>
+      <div style="background:var(--dz-surface); border-radius:12px; padding:14px; margin-bottom:20px; text-align:left;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <span style="font-size:20px;">📱</span>
+          <div><div style="font-size:13px; font-weight:600; color:var(--dz-text);">BaridiMob accepte</div>
+          <div style="font-size:12px; color:var(--dz-muted);">Compte: 00799999004235254364</div></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:20px;">🏦</span>
+          <div><div style="font-size:13px; font-weight:600; color:var(--dz-text);">CCP accepte</div>
+          <div style="font-size:12px; color:var(--dz-muted);">Compte: 322867 / Cle 53</div></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button onclick="document.getElementById('payment-confirm-overlay').style.display='none'; navigate('home');"
+          style="flex:1; padding:13px; background:var(--dz-green); color:#fff; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;">
+          Retour accueil
+        </button>
+        <button onclick="document.getElementById('payment-confirm-overlay').style.display='none'; navigate('dashboard');"
+          style="flex:1; padding:13px; background:var(--dz-surface); color:var(--dz-text); border:1px solid var(--dz-border); border-radius:12px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;">
+          Mon tableau de bord
+        </button>
+      </div>
     </div>
   </div>
 
