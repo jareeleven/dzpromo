@@ -11,8 +11,9 @@
   <meta name="description" content="DZ Promo - Les meilleures promotions et comparaison de prix en Algérie">
   <title>DZ Promo - Promotions Algérie</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="icon" href="./favicon.ico">
+  <link rel="icon" type="image/png" href="./icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -574,7 +575,7 @@
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
   });
 }
 </script>
@@ -592,7 +593,7 @@ function _waitAndRun(fn) {
       fn();
     } else if (tries > 100) {
       clearInterval(interval);
-      showToast('⚠️ Erreur de chargement, rechargez la page');
+      showToast("⚠️ Erreur de chargement, rechargez la page");
     }
   }, 100);
 }
@@ -716,7 +717,7 @@ onAuthStateChanged(auth, async (user) => {
     await loadProfile(user);
     console.log('[Auth] navigating to home');
     navigate('home');
-    showToast('✅ Bienvenue ' + (DZ.user.name?.split(' ')[0] || '') + ' !');
+    showToast("✅ Bienvenue " + (DZ.user.name?.split(" ")[0] || "") + " !");
   } else {
     console.log('[Auth] no user → auth screen');
     navigate('auth');
@@ -748,14 +749,14 @@ window._registerUser = async () => {
   const store    = document.getElementById('reg-store')?.value?.trim();
   const address  = document.getElementById('reg-address')?.value?.trim();
 
-  if (!name || !email || !password) { showToast('⚠️ Remplissez tous les champs'); return; }
-  if (password.length < 6)          { showToast('⚠️ Mot de passe : 6 caractères min'); return; }
-  if (password !== confirm)          { showToast('⚠️ Les mots de passe ne correspondent pas'); return; }
-  if (!terms)                        { showToast('⚠️ Acceptez les conditions d'utilisation'); return; }
-  if (role === 'merchant' && !store) { showToast('⚠️ Entrez le nom de votre magasin'); return; }
+  if (!name || !email || !password) { showToast("⚠️ Remplissez tous les champs"); return; }
+  if (password.length < 6)          { showToast("⚠️ Mot de passe : 6 caractères min"); return; }
+  if (password !== confirm)          { showToast("⚠️ Les mots de passe ne correspondent pas"); return; }
+  if (!terms)                        { showToast("⚠️ Acceptez les conditions d'utilisation"); return; }
+  if (role === 'merchant' && !store) { showToast("⚠️ Entrez le nom de votre magasin"); return; }
 
   try {
-    showToast('⏳ Création du compte...');
+    showToast("⏳ Création du compte...");
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName: name });
     await setDoc(doc(db,'users',cred.user.uid), {
@@ -774,9 +775,9 @@ window._registerUser = async () => {
 window._loginUser = async () => {
   const email    = document.getElementById('login-email')?.value?.trim();
   const password = document.getElementById('login-password')?.value;
-  if (!email || !password) { showToast('⚠️ Email et mot de passe requis'); return; }
+  if (!email || !password) { showToast("⚠️ Email et mot de passe requis"); return; }
   try {
-    showToast('⏳ Connexion...');
+    showToast("⏳ Connexion...");
     await signInWithEmailAndPassword(auth, email, password);
     // onAuthStateChanged handles navigation
   } catch(e) { showToast('❌ ' + fbErr(e.code)); }
@@ -797,16 +798,16 @@ window._loginGoogle = async () => {
 // ── LOGOUT ───────────────────────────────────────────────
 window._logoutUser = async () => {
   await signOut(auth);
-  showToast('👋 À bientôt !');
+  showToast("👋 À bientôt !");
 };
 
 // ── RESET PASSWORD ────────────────────────────────────────
 window._resetPassword = async () => {
   const email = document.getElementById('login-email')?.value?.trim();
-  if (!email) { showToast('⚠️ Entrez votre email d'abord'); return; }
+  if (!email) { showToast("⚠️ Entrez votre email d'abord"); return; }
   try {
     await sendPasswordResetEmail(auth, email);
-    showToast('📧 Email de réinitialisation envoyé !');
+    showToast("📧 Email de réinitialisation envoyé !");
   } catch(e) { showToast('❌ ' + fbErr(e.code)); }
 };
 
