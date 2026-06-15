@@ -621,7 +621,7 @@ import {
 
 const firebaseConfig = {
   apiKey:            "AIzaSyB-YwlA3CRSMo20HRkJnNeRNvW5vcMpkhg",
-  authDomain:        "jareeleven.github.io",
+  authDomain:        "dz-promo-ffd32.firebaseapp.com",
   projectId:         "dz-promo-ffd32",
   storageBucket:     "dz-promo-ffd32.firebasestorage.app",
   messagingSenderId: "588370328678",
@@ -786,11 +786,18 @@ window._loginUser = async () => {
 // ── LOGIN GOOGLE ──────────────────────────────────────────
 window._loginGoogle = async () => {
   try {
-    console.log('[Google] starting redirect sign-in...');
-    // Always use redirect on GitHub Pages — popup is blocked by browsers
-    await signInWithRedirect(auth, provider);
+    console.log("[Google] opening popup...");
+    provider.setCustomParameters({ prompt: "select_account" });
+    var result = await signInWithPopup(auth, provider);
+    console.log("[Google] popup OK:", result.user.email);
+    // onAuthStateChanged handles navigation
   } catch(e) {
-    console.error('[Google redirect error]', e.code, e.message);
+    console.warn("[Google] popup error:", e.code);
+    if (e.code === "auth/popup-closed-by-user" ||
+        e.code === "auth/cancelled-popup-request") {
+      // User closed popup - do nothing
+      return;
+    }
     showToast("Erreur: " + fbErr(e.code));
   }
 };
