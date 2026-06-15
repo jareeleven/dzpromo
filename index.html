@@ -593,7 +593,7 @@ function _waitAndRun(fn) {
       fn();
     } else if (tries > 100) {
       clearInterval(interval);
-      showToast("⚠️ Erreur de chargement, rechargez la page");
+      showToast("[!] Erreur, rechargez la page");
     }
   }, 100);
 }
@@ -717,7 +717,7 @@ onAuthStateChanged(auth, async (user) => {
     await loadProfile(user);
     console.log('[Auth] navigating to home');
     navigate('home');
-    showToast("✅ Bienvenue " + (DZ.user.name?.split(" ")[0] || "") + " !");
+    showToast("Bienvenue " + (DZ.user.name ? DZ.user.name.split(" ")[0] : "") + " !");
   } else {
     console.log('[Auth] no user → auth screen');
     navigate('auth');
@@ -749,14 +749,14 @@ window._registerUser = async () => {
   const store    = document.getElementById('reg-store')?.value?.trim();
   const address  = document.getElementById('reg-address')?.value?.trim();
 
-  if (!name || !email || !password) { showToast("⚠️ Remplissez tous les champs"); return; }
-  if (password.length < 6)          { showToast("⚠️ Mot de passe : 6 caractères min"); return; }
-  if (password !== confirm)          { showToast("⚠️ Les mots de passe ne correspondent pas"); return; }
-  if (!terms)                        { showToast("⚠️ Acceptez les conditions d'utilisation"); return; }
-  if (role === 'merchant' && !store) { showToast("⚠️ Entrez le nom de votre magasin"); return; }
+  if (!name || !email || !password) { showToast("[!] Remplissez tous les champs"); return; }
+  if (password.length < 6)          { showToast("[!] Mot de passe : 6 caracteres min"); return; }
+  if (password !== confirm)          { showToast("[!] Les mots de passe ne correspondent pas"); return; }
+  if (!terms)                        { showToast("[!] Acceptez les conditions"); return; }
+  if (role === 'merchant' && !store) { showToast("[!] Entrez le nom du magasin"); return; }
 
   try {
-    showToast("⏳ Création du compte...");
+    showToast("Creation du compte...");
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName: name });
     await setDoc(doc(db,'users',cred.user.uid), {
@@ -768,19 +768,19 @@ window._registerUser = async () => {
       createdAt: serverTimestamp()
     });
     // onAuthStateChanged handles navigation
-  } catch(e) { showToast('❌ ' + fbErr(e.code)); }
+  } catch(e) { showToast("Erreur: " + fbErr(e.code)); }
 };
 
 // ── LOGIN EMAIL ───────────────────────────────────────────
 window._loginUser = async () => {
   const email    = document.getElementById('login-email')?.value?.trim();
   const password = document.getElementById('login-password')?.value;
-  if (!email || !password) { showToast("⚠️ Email et mot de passe requis"); return; }
+  if (!email || !password) { showToast("[!] Email et mot de passe requis"); return; }
   try {
-    showToast("⏳ Connexion...");
+    showToast("Connexion...");
     await signInWithEmailAndPassword(auth, email, password);
     // onAuthStateChanged handles navigation
-  } catch(e) { showToast('❌ ' + fbErr(e.code)); }
+  } catch(e) { showToast("Erreur: " + fbErr(e.code)); }
 };
 
 // ── LOGIN GOOGLE ──────────────────────────────────────────
@@ -791,24 +791,24 @@ window._loginGoogle = async () => {
     await signInWithRedirect(auth, provider);
   } catch(e) {
     console.error('[Google redirect error]', e.code, e.message);
-    showToast('❌ ' + fbErr(e.code));
+    showToast("Erreur: " + fbErr(e.code));
   }
 };
 
 // ── LOGOUT ───────────────────────────────────────────────
 window._logoutUser = async () => {
   await signOut(auth);
-  showToast("👋 À bientôt !");
+  showToast("A bientot !");
 };
 
 // ── RESET PASSWORD ────────────────────────────────────────
 window._resetPassword = async () => {
   const email = document.getElementById('login-email')?.value?.trim();
-  if (!email) { showToast("⚠️ Entrez votre email d'abord"); return; }
+  if (!email) { showToast("[!] Entrez votre email"); return; }
   try {
     await sendPasswordResetEmail(auth, email);
-    showToast("📧 Email de réinitialisation envoyé !");
-  } catch(e) { showToast('❌ ' + fbErr(e.code)); }
+    showToast("Email de reinitialisation envoye !");
+  } catch(e) { showToast("Erreur: " + fbErr(e.code)); }
 };
 
 // ── FAVORITES SYNC ────────────────────────────────────────
@@ -841,18 +841,19 @@ if (window._pendingAction) {
 
 // ── ERROR MESSAGES ────────────────────────────────────────
 function fbErr(code) {
-  return ({
-    'auth/email-already-in-use':   'Email déjà utilisé',
-    'auth/weak-password':          'Mot de passe trop court (6 car. min)',
-    'auth/wrong-password':         'Email ou mot de passe incorrect',
-    'auth/invalid-credential':     'Email ou mot de passe incorrect',
-    'auth/user-not-found':         'Aucun compte avec cet email',
-    'auth/invalid-email':          'Adresse email invalide',
-    'auth/too-many-requests':      'Trop de tentatives, réessayez plus tard',
-    'auth/network-request-failed': 'Erreur réseau',
-    'auth/user-disabled':          'Compte désactivé',
-    'auth/popup-blocked':          'Popup bloquée — redirection...',
-  })[code] || ('Erreur : ' + (code || 'inconnue'));
+  var errors = {
+    "auth/email-already-in-use":   "Email deja utilise",
+    "auth/weak-password":          "Mot de passe trop court (6 car. min)",
+    "auth/wrong-password":         "Email ou mot de passe incorrect",
+    "auth/invalid-credential":     "Email ou mot de passe incorrect",
+    "auth/user-not-found":         "Aucun compte avec cet email",
+    "auth/invalid-email":          "Adresse email invalide",
+    "auth/too-many-requests":      "Trop de tentatives",
+    "auth/network-request-failed": "Erreur reseau",
+    "auth/user-disabled":          "Compte desactive",
+    "auth/popup-blocked":          "Redirection en cours"
+  };
+  return errors[code] || ("Erreur: " + (code || "inconnue"));
 }
 </script>
 </body>
