@@ -579,6 +579,16 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
+<!-- Global bridge — called by onclick= before Firebase module loads -->
+<script>
+// These wrappers wait for Firebase to be ready before executing
+function loginGoogle()   { if(window._fbReady) window._loginGoogle();   else window._pendingAction = 'google'; }
+function loginUser()     { if(window._fbReady) window._loginUser();      else window._pendingAction = 'login'; }
+function registerUser()  { if(window._fbReady) window._registerUser();   else window._pendingAction = 'register'; }
+function logoutUser()    { if(window._fbReady) window._logoutUser();     else window._pendingAction = 'logout'; }
+function resetPassword() { if(window._fbReady) window._resetPassword();  else window._pendingAction = 'reset'; }
+</script>
+
 <!-- FIREBASE v2 — Auth + Firestore + Storage -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
@@ -625,7 +635,7 @@ window._db   = db;
 await setPersistence(auth, browserLocalPersistence);
 
 // ── REGISTER ──────────────────────────────────────────────
-window.registerUser = async () => {
+window._registerUser = async () => {
   const name     = document.getElementById('reg-name')?.value?.trim();
   const email    = document.getElementById('reg-email')?.value?.trim();
   const password = document.getElementById('reg-password')?.value;
@@ -658,7 +668,7 @@ window.registerUser = async () => {
 };
 
 // ── LOGIN ─────────────────────────────────────────────────
-window.loginUser = async () => {
+window._loginUser = async () => {
   const email    = document.getElementById('login-email')?.value?.trim();
   const password = document.getElementById('login-password')?.value;
   if (!email || !password) { showToast('⚠️ Email et mot de passe requis'); return; }
@@ -671,7 +681,7 @@ window.loginUser = async () => {
 
 // ── GOOGLE SIGN-IN ────────────────────────────────────────
 // Strategy: try popup first (works on desktop), fall back to redirect (mobile)
-window.loginGoogle = async () => {
+window._loginGoogle = async () => {
   try {
     // Try popup first
     const result = await signInWithPopup(auth, provider);
@@ -756,13 +766,13 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ── LOGOUT ────────────────────────────────────────────────
-window.logoutUser = async () => {
+window._logoutUser = async () => {
   await signOut(auth);
   showToast('👋 À bientôt !');
 };
 
 // ── RESET PASSWORD ────────────────────────────────────────
-window.resetPassword = async () => {
+window._resetPassword = async () => {
   const email = document.getElementById('login-email')?.value?.trim();
   if (!email) { showToast('⚠️ Entrez votre email d'abord'); return; }
   try {
@@ -772,7 +782,7 @@ window.resetPassword = async () => {
 };
 
 // ── FAVORITES SYNC ────────────────────────────────────────
-window.saveFavoriteToDB = async (productId, add) => {
+window._saveFavoriteToDB = async (productId, add) => {
   const uid = auth.currentUser?.uid;
   if (!uid) return;
   const ref = doc(db, 'favorites', uid, 'items', String(productId));
@@ -805,6 +815,21 @@ function updateUIForUser(u) {
   const dname = document.getElementById('dash-store-name');
   if (dname) dname.textContent = u.storeName || u.name || 'Mon Magasin';
 }
+
+// ── EXPOSE PUBLIC API AFTER FIREBASE READY ───────────────
+window._fbReady = true;
+// Run any action that was clicked before Firebase loaded
+if (window._pendingAction) {
+  const a = window._pendingAction;
+  window._pendingAction = null;
+  if (a === 'google')    window._loginGoogle?.();
+  if (a === 'login')     window._loginUser?.();
+  if (a === 'register')  window._registerUser?.();
+  if (a === 'logout')    window._logoutUser?.();
+  if (a === 'reset')     window._resetPassword?.();
+}
+// Also expose saveFavoriteToDB for app.js
+window.saveFavoriteToDB = window._saveFavoriteToDB;
 
 // ── ERROR MESSAGES ────────────────────────────────────────
 function fbErr(code) {
