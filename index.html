@@ -204,7 +204,12 @@
             <div class="hero-tag">🎉 Offres Spéciales</div>
             <h2 class="hero-title">Jusqu'à 60% de réduction</h2>
             <p class="hero-sub">Dans plus de 200 magasins à Oran</p>
-            <button class="hero-btn" onclick="navigate('search')">Voir les offres <i class="ti ti-arrow-right"></i></button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="hero-btn" onclick="navigate('search')">Voir les offres <i class="ti ti-arrow-right"></i></button>
+              <button class="hero-btn" onclick="navigate('map')" style="background:rgba(255,255,255,0.15);">
+                <i class="ti ti-map-pin"></i> Magasins proches
+              </button>
+            </div>
           </div>
           <div class="hero-emoji">🛒</div>
         </div>
@@ -233,8 +238,21 @@
         <div class="trending-scroll" id="trending-scroll"></div>
       </section>
       <section class="section">
-        <div class="section-header"><h3 class="section-title">📍 Magasins proches</h3><button class="see-all-btn" onclick="navigate('map')">Carte</button></div>
+        <div class="section-header"><h3 class="section-title">📍 Magasins proches</h3><button class="see-all-btn" onclick="navigate('map')">Voir la carte</button></div>
+        <!-- Map button prominent -->
+        <div style="padding:0 16px 12px;">
+          <button onclick="navigate('map')" style="width:100%;padding:13px 16px;background:linear-gradient(135deg,#00A651,#007A3D);color:#fff;border:none;border-radius:14px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+            <i class="ti ti-map-2" style="font-size:20px;"></i>
+            Trouver les magasins pres de moi
+            <i class="ti ti-arrow-right" style="font-size:16px;"></i>
+          </button>
+        </div>
         <div id="nearby-stores"></div>
+        <div style="margin:10px 16px 0;">
+          <button onclick="navigate('map')" style="width:100%;padding:13px;background:var(--dz-green-light);color:var(--dz-green-dark);border:1.5px solid var(--dz-green);border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <i class="ti ti-map-2" style="font-size:18px;"></i> Carte interactive — Tous les magasins
+          </button>
+        </div>
       </section>
       <div style="height:20px;"></div>
     </div>
@@ -512,7 +530,7 @@
   <div id="screen-dashboard" class="screen">
     <div class="screen-scroll">
       <div class="dashboard-header">
-        <button class="back-btn-white" onclick="goBack()"><i class="ti ti-arrow-left"></i></button>
+        <button class="back-btn-white" onclick="navigate('home')"><i class="ti ti-arrow-left"></i></button>
         <div class="dash-store-info">
           <div class="dash-store-icon">🛒</div>
           <div><div class="dash-store-name" id="dash-store-name">Mon Magasin</div>
@@ -569,33 +587,50 @@
 
 
   <!-- Payment Confirmation Overlay -->
-  <div id="payment-confirm-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:300; align-items:flex-end; justify-content:center;">
-    <div style="background:var(--dz-bg); border-radius:24px 24px 0 0; padding:28px 24px 40px; width:100%; max-width:430px; text-align:center;">
-      <div style="font-size:56px; margin-bottom:16px;">✅</div>
-      <div style="font-size:20px; font-weight:800; color:var(--dz-text); margin-bottom:8px;">Preuve envoyee !</div>
-      <div style="font-size:14px; color:var(--dz-muted); line-height:1.6; margin-bottom:20px;">
-        Votre preuve de paiement a ete recue. Notre equipe va verifier votre paiement et activer votre compte Premium sous <strong style="color:var(--dz-green);">24 heures</strong>.
+  <div id="payment-confirm-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:300; align-items:flex-end; justify-content:center;">
+    <div style="background:var(--dz-bg); border-radius:24px 24px 0 0; padding:28px 24px 44px; width:100%; max-width:430px; text-align:center; animation: slideUp 0.3s ease;">
+      
+      <!-- Success icon -->
+      <div style="width:72px;height:72px;background:#E6F7EE;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px;">✅</div>
+      
+      <div style="font-size:20px;font-weight:800;color:var(--dz-text);margin-bottom:6px;">Preuve envoyee !</div>
+      <div style="font-size:13px;color:var(--dz-muted);line-height:1.6;margin-bottom:20px;">
+        Notre equipe verifie votre paiement sous <strong style="color:var(--dz-green);">24 heures</strong>.<br>
+        Conservez votre code de suivi :
       </div>
-      <div style="background:var(--dz-surface); border-radius:12px; padding:14px; margin-bottom:20px; text-align:left;">
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-          <span style="font-size:20px;">📱</span>
-          <div><div style="font-size:13px; font-weight:600; color:var(--dz-text);">BaridiMob accepte</div>
-          <div style="font-size:12px; color:var(--dz-muted);">Compte: 00799999004235254364</div></div>
+
+      <!-- Unique verification code -->
+      <div style="background:linear-gradient(135deg,#00A651,#007A3D);border-radius:14px;padding:16px;margin-bottom:20px;">
+        <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;">Code de verification</div>
+        <div id="payment-code-display" style="font-size:22px;font-weight:900;color:#fff;letter-spacing:3px;font-family:monospace;">DZP-XXXX-XXXX</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:6px;">Gardez ce code — il vous sera demande en cas de litige</div>
+        <button onclick="copyCode()" style="margin-top:10px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">
+          Copier le code
+        </button>
+      </div>
+
+      <!-- Accepted payment methods reminder -->
+      <div style="background:var(--dz-surface);border-radius:12px;padding:12px 14px;margin-bottom:20px;text-align:left;">
+        <div style="font-size:12px;font-weight:700;color:var(--dz-text);margin-bottom:8px;">Methodes acceptees :</div>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px;">
+          <span style="font-size:18px;">📱</span>
+          <div style="font-size:12px;color:var(--dz-muted);">BaridiMob : <strong style="color:var(--dz-text);">00799999004235254364</strong></div>
         </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="font-size:20px;">🏦</span>
-          <div><div style="font-size:13px; font-weight:600; color:var(--dz-text);">CCP accepte</div>
-          <div style="font-size:12px; color:var(--dz-muted);">Compte: 322867 / Cle 53</div></div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <span style="font-size:18px;">🏦</span>
+          <div style="font-size:12px;color:var(--dz-muted);">CCP : <strong style="color:var(--dz-text);">322867 / Cle 53</strong></div>
         </div>
       </div>
-      <div style="display:flex; gap:10px;">
+
+      <!-- Action buttons -->
+      <div style="display:flex;gap:10px;">
         <button onclick="document.getElementById('payment-confirm-overlay').style.display='none'; navigate('home');"
-          style="flex:1; padding:13px; background:var(--dz-green); color:#fff; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;">
-          Retour accueil
+          style="flex:1;padding:13px;background:var(--dz-green);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">
+          Accueil
         </button>
         <button onclick="document.getElementById('payment-confirm-overlay').style.display='none'; navigate('dashboard');"
-          style="flex:1; padding:13px; background:var(--dz-surface); color:var(--dz-text); border:1px solid var(--dz-border); border-radius:12px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;">
-          Mon tableau de bord
+          style="flex:1;padding:13px;background:var(--dz-surface);color:var(--dz-text);border:1px solid var(--dz-border);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">
+          Tableau de bord
         </button>
       </div>
     </div>
@@ -622,6 +657,18 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
   });
 }
+
+// Copy payment code to clipboard
+function copyPaymentCode() {
+  var code = document.getElementById("payment-verify-code").textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(function() {
+      showToast("Code copie: " + code);
+    });
+  } else {
+    showToast("Code: " + code);
+  }
+}
 </script>
 
 <!-- Global bridge — waits for Firebase module to be ready -->
@@ -647,6 +694,16 @@ function loginUser()     { _waitAndRun(() => window._loginUser()); }
 function registerUser()  { _waitAndRun(() => window._registerUser()); }
 function logoutUser()    { _waitAndRun(() => window._logoutUser()); }
 function resetPassword() { _waitAndRun(() => window._resetPassword()); }
+
+function copyCode() {
+  var code = document.getElementById("payment-code-display")?.textContent;
+  if (!code) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(function() { showToast("Code copie !"); });
+  } else {
+    showToast("Code: " + code);
+  }
+}
 </script>
 
 <!-- FIREBASE v2 — Auth + Firestore + Storage -->
