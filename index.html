@@ -32,24 +32,28 @@
 <script>
 var DZCONFIG = {
 
+  /* ══════════════════════════════════════════════════════
+     CONFIGURATION DZ PROMO — MODIFIER ICI UNIQUEMENT
+     ══════════════════════════════════════════════════════ */
+
   /* ── IDENTITE DU PROPRIETAIRE ─────────────────────────── */
   owner: {
-    nom:      "GAFSI",           // ← Votre prenom
-    prenom:   "ABDELJALIL",        // ← Votre nom de famille
-    nomComplet: "GAFSI ABDELJALIL" // ← Nom complet (tel qu'il apparait sur CCP/BaridiMob)
+    nom:        "GAFSI",                // ← Nom de famille
+    prenom:     "ABDELJALIL",           // ← Prenom
+    nomComplet: "GAFSI ABDELJALIL"      // ← Nom complet (tel que sur CCP/BaridiMob)
   },
 
   /* ── COORDONNEES DE PAIEMENT ──────────────────────────── */
   paiement: {
-    baridimob: "6280703146616583", // ← Votre numero de compte BaridiMob
-    ccp:       "029487990",               // ← Votre numero de compte CCP
-    ccpCle:    "42",                   // ← Votre cle CCP
-    montant:   "1 000",                // ← Montant de l'abonnement en DA
+    baridimob: "6280703146616583",  // ← Numero de compte BaridiMob
+    ccp:       "029487990",         // ← Numero de compte CCP
+    ccpCle:    "42",                // ← Cle CCP
+    montant:   "1 000",             // ← Montant abonnement en DA
   },
 
   /* ── CONTACT WHATSAPP ─────────────────────────────────── */
   whatsapp: {
-    affiche:  "+213 771 06 21 22",  // ← Votre numero affiché (avec espaces)
+    affiche:  "+213 771 06 21 22",  // ← Numero affiche dans l'app (avec espaces)
     lien:     "213771062122",       // ← Meme numero SANS espaces SANS + (ex: 213555123456)
   },
 
@@ -651,7 +655,7 @@ var DZCONFIG = {
             <div style="font-size:11px;color:#007A3D;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Beneficiaire</div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
               <span style="font-size:12px;color:var(--dz-muted);">Nom :</span>
-              <span style="font-size:13px;font-weight:700;color:var(--dz-text);"><span class="dz-owner-name">RAHAF KADDOURI</span></span>
+              <span style="font-size:13px;font-weight:700;color:var(--dz-text);"><span class="dz-owner-name">GAFSI ABDELJALIL</span></span>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
               <span style="font-size:12px;color:var(--dz-muted);">Prenom :</span>
@@ -660,7 +664,7 @@ var DZCONFIG = {
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <span style="font-size:12px;color:var(--dz-muted);">N° compte :</span>
               <div style="display:flex;align-items:center;gap:6px;">
-                <span style="font-size:13px;font-weight:800;color:#00A651;font-family:monospace;" id="baridimob-num" class="dz-baridimob-num">00799999004235254364</span>
+                <span style="font-size:13px;font-weight:800;color:#00A651;font-family:monospace;" id="baridimob-num" class="dz-baridimob-num">6280703146616583</span>
                 <button onclick="copyText(DZCONFIG.paiement.baridimob,'Numero BaridiMob copie')" style="background:#00A651;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;font-weight:600;">Copier</button>
               </div>
             </div>
@@ -689,18 +693,18 @@ var DZCONFIG = {
             <div style="font-size:11px;color:#7A3D00;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Beneficiaire CCP</div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
               <span style="font-size:12px;color:var(--dz-muted);">Nom complet :</span>
-              <span style="font-size:13px;font-weight:700;color:var(--dz-text);"><span class="dz-owner-name">RAHAF KADDOURI</span></span>
+              <span style="font-size:13px;font-weight:700;color:var(--dz-text);"><span class="dz-owner-name">GAFSI ABDELJALIL</span></span>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
               <span style="font-size:12px;color:var(--dz-muted);">N° compte :</span>
               <div style="display:flex;align-items:center;gap:6px;">
-                <span style="font-size:13px;font-weight:800;color:#FF6B35;font-family:monospace;" class="dz-ccp-num">322867</span>
+                <span style="font-size:13px;font-weight:800;color:#FF6B35;font-family:monospace;" class="dz-ccp-num">029487990</span>
                 <button onclick="copyText(DZCONFIG.paiement.ccp,'Numero CCP copie')" style="background:#FF6B35;color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;font-weight:600;">Copier</button>
               </div>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <span style="font-size:12px;color:var(--dz-muted);">Cle :</span>
-              <span style="font-size:13px;font-weight:800;color:var(--dz-text);">53</span>
+              <span style="font-size:13px;font-weight:800;color:var(--dz-text);">42</span>
             </div>
           </div>
 
@@ -725,7 +729,7 @@ var DZCONFIG = {
           <div style="display:flex;align-items:center;justify-content:space-between;background:#DCFCE7;border-radius:10px;padding:10px 12px;margin-bottom:10px;">
             <div>
               <div style="font-size:12px;color:#166534;font-weight:600;">Numero WhatsApp DZ Promo</div>
-              <div style="font-size:16px;font-weight:900;color:#15803D;font-family:monospace;" class="dz-whatsapp-affiche">+213 555 XX XX XX</div>
+              <div style="font-size:16px;font-weight:900;color:#15803D;font-family:monospace;" class="dz-whatsapp-affiche">+213 771 06 21 22</div>
             </div>
             <button onclick="openWhatsApp()" style="background:#25D366;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;">
               <i class="ti ti-brand-whatsapp" style="font-size:16px;"></i> Ouvrir
@@ -829,11 +833,11 @@ var DZCONFIG = {
         <div style="font-size:12px;font-weight:700;color:var(--dz-text);margin-bottom:8px;">Methodes acceptees :</div>
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px;">
           <span style="font-size:18px;">📱</span>
-          <div style="font-size:12px;color:var(--dz-muted);">BaridiMob : <strong style="color:var(--dz-text);">00799999004235254364</strong></div>
+          <div style="font-size:12px;color:var(--dz-muted);">BaridiMob : <strong style="color:var(--dz-text);">6280703146616583</strong></div>
         </div>
         <div style="display:flex;gap:10px;align-items:center;">
           <span style="font-size:18px;">🏦</span>
-          <div style="font-size:12px;color:var(--dz-muted);">CCP : <strong style="color:var(--dz-text);">322867 / Cle 53</strong></div>
+          <div style="font-size:12px;color:var(--dz-muted);">CCP : <strong style="color:var(--dz-text);">029487990 / Cle 42</strong></div>
         </div>
       </div>
 
@@ -935,7 +939,7 @@ function copyText(text, msg) {
 // Open WhatsApp with pre-filled message
 function openWhatsApp() {
   var cfg = window.DZCONFIG || {};
-  var phone = (cfg.whatsapp && cfg.whatsapp.lien) ? cfg.whatsapp.lien : "213555XXXXXX";
+  var phone = (cfg.whatsapp && cfg.whatsapp.lien) ? cfg.whatsapp.lien : "213771062122";
   var montant = (cfg.paiement && cfg.paiement.montant) ? cfg.paiement.montant : "1 000";
   var user  = (window.DZ && DZ.user && DZ.user.email)     ? DZ.user.email     : "";
   var store = (window.DZ && DZ.user && DZ.user.storeName) ? DZ.user.storeName : "";
