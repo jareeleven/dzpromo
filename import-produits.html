@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DZ Promo — Import Produits Firestore</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #F9FAFB; padding: 20px; }
+    .card { background: #fff; border-radius: 12px; padding: 24px; max-width: 600px; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    h1 { font-size: 20px; color: #00A651; margin-bottom: 6px; }
+    p { font-size: 13px; color: #6B7280; margin-bottom: 20px; line-height: 1.6; }
+    .btn { width: 100%; padding: 14px; background: #00A651; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
+    .btn:disabled { background: #9CA3AF; cursor: not-allowed; }
+    .btn-danger { background: #E24B4A; }
+    .log { background: #0f1117; border-radius: 8px; padding: 12px; height: 300px; overflow-y: auto; font-family: monospace; font-size: 11px; line-height: 1.8; }
+    .log-ok   { color: #86efac; }
+    .log-err  { color: #f87171; }
+    .log-info { color: #93c5fd; }
+    .log-warn { color: #fde68a; }
+    .progress { height: 8px; background: #E5E7EB; border-radius: 4px; margin: 10px 0; overflow: hidden; }
+    .progress-fill { height: 100%; background: #00A651; border-radius: 4px; transition: width 0.3s; width: 0%; }
+    .stat { display: flex; gap: 10px; margin-bottom: 16px; }
+    .stat-box { flex: 1; background: #F3F4F6; border-radius: 8px; padding: 10px; text-align: center; }
+    .stat-n { font-size: 22px; font-weight: 700; color: #111827; }
+    .stat-l { font-size: 11px; color: #6B7280; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>🏷️ DZ Promo — Import Produits</h1>
+  <p>Cet outil importe automatiquement les 10 produits dans votre base Firestore. Ouvrez cette page sur <strong>jareeleven.github.io/dzpromo/import-produits.html</strong> en étant connecté comme admin.</p>
+
+  <div class="stat">
+    <div class="stat-box"><div class="stat-n" id="stat-total">10</div><div class="stat-l">Produits</div></div>
+    <div class="stat-box"><div class="stat-n" id="stat-ok" style="color:#00A651;">0</div><div class="stat-l">Importés</div></div>
+    <div class="stat-box"><div class="stat-n" id="stat-err" style="color:#E24B4A;">0</div><div class="stat-l">Erreurs</div></div>
+  </div>
+
+  <div class="progress"><div class="progress-fill" id="prog"></div></div>
+
+  <button class="btn" id="btn-import" onclick="startImport()">
+    Importer les 10 produits dans Firestore
+  </button>
+  <button class="btn btn-danger" id="btn-clear" onclick="clearProducts()" style="display:none;">
+    Supprimer tous les produits
+  </button>
+
+  <div class="log" id="log">
+    <div class="log-info">Prêt à importer. Cliquer le bouton ci-dessus.</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {
+  getFirestore, collection, doc, setDoc, deleteDoc, getDocs
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import {
+  getAuth, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyB-YwlA3CRSMo20HRkJnNeRNvW5vcMpkhg",
+  authDomain:        "dz-promo-ffd32.firebaseapp.com",
+  projectId:         "dz-promo-ffd32",
+  storageBucket:     "dz-promo-ffd32.firebasestorage.app",
+  messagingSenderId: "588370328678",
+  appId:             "1:588370328678:web:c25c1fa8d99e9e3703c1a7"
+};
+
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+const auth = getAuth(app);
+
+// ── 10 PRODUITS A IMPORTER ──────────────────────────────
+const PRODUITS = [
+  {
+    id: "prod001", nom: "Huile de Table 5L", marque: "Elio",
+    categorie: "alimentaire", emoji: "🛢️",
+    description: "Huile vegetale raffinee qualite superieure",
+    prixNormal: 2800, prixPromo: 1990, reduction: 29,
+    magasin: "Uno Market Oran", adresse: "Hai El Yasmine, Oran",
+    latitude: 35.6976, longitude: -0.6337,
+    enStock: true, actif: true, banderolle: true,
+    dateExpiration: "2026-07-15"
+  },
+  {
+    id: "prod002", nom: "Semoule Moyenne 5kg", marque: "Tafna",
+    categorie: "alimentaire", emoji: "🌾",
+    description: "Semoule de ble dur qualite extra",
+    prixNormal: 1200, prixPromo: 890, reduction: 26,
+    magasin: "Ardis Hypermarche", adresse: "Route de Canastel, Oran",
+    latitude: 35.7021, longitude: -0.6289,
+    enStock: true, actif: true, banderolle: true,
+    dateExpiration: "2026-07-20"
+  },
+  {
+    id: "prod003", nom: "Lait UHT 1L x6", marque: "Candia",
+    categorie: "alimentaire", emoji: "🥛",
+    description: "Pack 6 briques lait demi-ecreme longue conservation",
+    prixNormal: 1500, prixPromo: 1150, reduction: 23,
+    magasin: "Uno Market Oran", adresse: "Hai El Yasmine, Oran",
+    latitude: 35.6976, longitude: -0.6337,
+    enStock: true, actif: true, banderolle: true,
+    dateExpiration: "2026-07-10"
+  },
+  {
+    id: "prod004", nom: "Samsung Galaxy A15 128Go", marque: "Samsung",
+    categorie: "telephones", emoji: "📱",
+    description: "Smartphone 6.5 pouces 4Go RAM batterie 5000mAh",
+    prixNormal: 55000, prixPromo: 42000, reduction: 24,
+    magasin: "Condor Store Oran", adresse: "Boulevard Millenium, Oran",
+    latitude: 35.6956, longitude: -0.6301,
+    enStock: true, actif: true, banderolle: true,
+    dateExpiration: "2026-07-30"
+  },
+  {
+    id: "prod005", nom: "Climatiseur 12000 BTU", marque: "Condor",
+    categorie: "electro", emoji: "❄️",
+    description: "Climatiseur split A+ WiFi integre telecommande",
+    prixNormal: 75000, prixPromo: 58000, reduction: 23,
+    magasin: "Electro Bouzidi", adresse: "Rue Larbi Ben Mhidi, Oran",
+    latitude: 35.6945, longitude: -0.6323,
+    enStock: true, actif: true, banderolle: true,
+    dateExpiration: "2026-08-15"
+  },
+  {
+    id: "prod006", nom: "Aspirine 500mg x20", marque: "Bayer",
+    categorie: "pharmacie", emoji: "💊",
+    description: "Comprimes effervescents anti-douleur",
+    prixNormal: 280, prixPromo: 190, reduction: 32,
+    magasin: "Pharmacie El Badr", adresse: "Hai El Yasmine, Oran",
+    latitude: 35.6989, longitude: -0.6345,
+    enStock: true, actif: true, banderolle: true,
+    dateExpiration: "2026-07-05"
+  },
+  {
+    id: "prod007", nom: "Jean Homme Slim", marque: "Generique",
+    categorie: "mode", emoji: "👖",
+    description: "Jean coupe slim toutes tailles disponibles",
+    prixNormal: 3500, prixPromo: 1990, reduction: 43,
+    magasin: "Fashion Store Oran", adresse: "Centre Commercial, Oran",
+    latitude: 35.6889, longitude: -0.6501,
+    enStock: true, actif: true, banderolle: true,
+    dateExpiration: "2026-07-31"
+  },
+  {
+    id: "prod008", nom: "Cafe Moulu 250g", marque: "Mokarabia",
+    categorie: "alimentaire", emoji: "☕",
+    description: "Cafe arabica torrefaction artisanale",
+    prixNormal: 950, prixPromo: 680, reduction: 28,
+    magasin: "Ardis Hypermarche", adresse: "Route de Canastel, Oran",
+    latitude: 35.7021, longitude: -0.6289,
+    enStock: true, actif: true, banderolle: true,
+    dateExpiration: "2026-07-25"
+  },
+  {
+    id: "prod009", nom: "Shampoing 400ml", marque: "Head Shoulders",
+    categorie: "beaute", emoji: "🧴",
+    description: "Shampoing antipelliculaire zinc renforce",
+    prixNormal: 920, prixPromo: 550, reduction: 40,
+    magasin: "Pharmacie El Badr", adresse: "Hai El Yasmine, Oran",
+    latitude: 35.6989, longitude: -0.6345,
+    enStock: true, actif: true, banderolle: true,
+    dateExpiration: "2026-07-12"
+  },
+  {
+    id: "prod010", nom: "PC Portable HP 15 pouces", marque: "HP",
+    categorie: "informatique", emoji: "💻",
+    description: "Intel Core i5 8Go RAM SSD 256Go Windows 11",
+    prixNormal: 85000, prixPromo: 67000, reduction: 21,
+    magasin: "Info Center Oran", adresse: "Rue Larbi Ben Mhidi, Oran",
+    latitude: 35.6967, longitude: -0.6312,
+    enStock: true, actif: true, banderolle: true,
+    dateExpiration: "2026-08-01"
+  }
+];
+
+function log(msg, type) {
+  type = type || 'info';
+  var el = document.getElementById('log');
+  var line = document.createElement('div');
+  line.className = 'log-' + type;
+  line.textContent = new Date().toLocaleTimeString() + ' — ' + msg;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function setProgress(pct) {
+  document.getElementById('prog').style.width = pct + '%';
+}
+
+var okCount = 0, errCount = 0;
+
+function updateStats() {
+  document.getElementById('stat-ok').textContent  = okCount;
+  document.getElementById('stat-err').textContent = errCount;
+}
+
+// Check auth
+onAuthStateChanged(auth, function(user) {
+  if (user) {
+    log('Connecte comme: ' + user.email, 'ok');
+    log('Pret a importer les produits.', 'info');
+  } else {
+    log('Non connecte ! Retourner sur index.html et se connecter.', 'err');
+    document.getElementById('btn-import').disabled = true;
+  }
+});
+
+window.startImport = async function() {
+  var btn = document.getElementById('btn-import');
+  btn.disabled = true;
+  btn.textContent = 'Import en cours...';
+  okCount = 0; errCount = 0;
+  log('Debut de l\'import...', 'info');
+
+  for (var i = 0; i < PRODUITS.length; i++) {
+    var p = PRODUITS[i];
+    try {
+      await setDoc(doc(db, 'products', p.id), p);
+      okCount++;
+      log('OK: ' + p.nom + ' (' + p.id + ')', 'ok');
+      setProgress(Math.round(((i+1) / PRODUITS.length) * 100));
+      updateStats();
+    } catch(e) {
+      errCount++;
+      log('ERREUR: ' + p.nom + ' — ' + e.message, 'err');
+      updateStats();
+    }
+    // Small delay to avoid rate limiting
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  log('Import termine ! ' + okCount + ' produits importes.', 'ok');
+  btn.textContent = 'Import termine !';
+  btn.style.background = '#3B6D11';
+  document.getElementById('btn-clear').style.display = 'block';
+};
+
+window.clearProducts = async function() {
+  if (!confirm('Supprimer tous les produits ?')) return;
+  log('Suppression en cours...', 'warn');
+  var snap = await getDocs(collection(db, 'products'));
+  for (var d of snap.docs) {
+    await deleteDoc(d.ref);
+    log('Supprime: ' + d.id, 'warn');
+  }
+  log('Tous les produits supprimes.', 'warn');
+};
+</script>
+</body>
+</html>
