@@ -11,9 +11,9 @@
   <meta name="description" content="DZ Promo - Les meilleures promotions et comparaison de prix en Algérie">
   <title>DZ Promo - Promotions Algérie</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
   <link rel="icon" href="./favicon.ico">
-  <link rel="icon" type="image/png" href="./icons/icon-192.png">
+  <link rel="icon" type="image/png" href="./icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -864,6 +864,7 @@ var DZCONFIG = {
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <!-- App scripts -->
 <script src="js/data.js"></script>
+<script src="js/firestore-data.js"></script>
 <script src="js/search.js"></script>
 <script src="js/merchant.js"></script>
 <script src="js/map.js"></script>
@@ -1100,6 +1101,13 @@ onAuthStateChanged(auth, async (user) => {
     console.log('[Auth] navigating to home');
     navigate('home');
     showToast("Bienvenue " + (DZ.user.name ? DZ.user.name.split(" ")[0] : "") + " !");
+    // Charger les vrais produits depuis Firestore
+    loadProductsFromFirestore().then(function(loaded) {
+      if (loaded) {
+        renderHome(); // Rafraichir avec les vraies données
+        console.log('[App] Accueil mis a jour avec les produits Firestore');
+      }
+    });
   } else {
     console.log('[Auth] no user → auth screen');
     navigate('auth');
