@@ -188,33 +188,43 @@ function handleProofFile(e) {
 
 /* ══ SUBMIT PAYMENT PROOF ════════════════════ */
 async function submitPaymentProof() {
-  const file = document.getElementById('proof-file')?.files[0];
-  const note = document.getElementById('payment-note')?.value?.trim();
-  if (!file) { showToast('⚠️ Veuillez joindre votre preuve de paiement'); return; }
+  const file = document.getElementById("proof-file")?.files[0];
+  const note = document.getElementById("payment-note")?.value?.trim();
+  if (!file) { showToast("[!] Veuillez joindre votre preuve de paiement"); return; }
 
-  showToast('⏳ Envoi en cours...');
+  showToast("Envoi en cours...");
 
-  // Save proof request to Firestore (if Firebase loaded)
+  // Generate unique tracking code
+  var code = "DZP-" + Math.random().toString(36).substring(2,6).toUpperCase() +
+             "-" + Date.now().toString(36).toUpperCase().slice(-4);
+
+  // Save to Firestore
   try {
-    if (window._db && window._auth?.currentUser) {
-      const { doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
-      await setDoc(doc(window._db, 'payment_requests', window._auth.currentUser.uid), {
-        uid: window._auth.currentUser.uid,
-        email: window._auth.currentUser.email,
-        method: selectedPayMethod,
-        filename: file.name,
-        filesize: file.size,
-        note: note || '',
-        status: 'pending',
-        submittedAt: serverTimestamp()
+    if (window._db && window._auth && window._auth.currentUser) {
+      var firestoreModule = await import("https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js");
+      var docFn = firestoreModule.doc;
+      var setDocFn = firestoreModule.setDoc;
+      var tsFn = firestoreModule.serverTimestamp;
+      await setDocFn(docFn(window._db, "payment_requests", window._auth.currentUser.uid), {
+        uid:         window._auth.currentUser.uid,
+        email:       window._auth.currentUser.email,
+        method:      selectedPayMethod,
+        filename:    file.name,
+        filesize:    file.size,
+        note:        note || "",
+        code:        code,
+        status:      "pending",
+        submittedAt: tsFn()
       });
     }
-  } catch(e) { console.log('Firestore save:', e); }
+  } catch(e) { console.log("Firestore:", e.message); }
 
-  setTimeout(() => {
-    showToast('✅ Preuve envoyée ! Activation sous 24h');
-    navigate('dashboard');
-  }, 1500);
+  // Show confirmation overlay with code
+  var codeEl  = document.getElementById("payment-code-display");
+  var overlay = document.getElementById("payment-confirm-overlay");
+  if (codeEl)  codeEl.textContent = code;
+  if (overlay) overlay.style.display = "flex";
+  else { showToast("Preuve envoyee !"); navigate("dashboard"); }
 }
 
 /* ══ MERCHANT PRODUCT FORM ═══════════════════ */
@@ -388,17 +398,70 @@ function toggleBanner() {
   knob.style.transform  = bannerOn ? 'translateX(20px)' : 'translateX(0)';
 }
 
-function submitProduct() {
-  const name    = document.getElementById('prod-name')?.value?.trim();
-  const cat     = document.getElementById('prod-cat')?.value;
-  const oldP    = document.getElementById('prod-old-price')?.value;
-  const newP    = document.getElementById('prod-new-price')?.value;
+async function submitProduct() {
+  const name   = document.getElementById('prod-name')?.value?.trim();
+  const cat    = document.getElementById('prod-cat')?.value;
+  const desc   = document.getElementById('prod-desc')?.value?.trim();
+  const oldP   = document.getElementById('prod-old-price')?.value;
+  const newP   = document.getElementById('prod-new-price')?.value;
+  const expiry = document.getElementById('prod-expiry')?.value;
+
   if (!name || !cat || !oldP || !newP) {
-    showToast('⚠️ Remplissez les champs obligatoires'); return;
+    showToast("[!] Remplissez les champs obligatoires"); return;
   }
   if (parseFloat(newP) >= parseFloat(oldP)) {
-    showToast('⚠️ Le prix promo doit être inférieur au prix normal'); return;
+    showToast("[!] Prix promo doit etre inferieur au prix normal"); return;
   }
-  showToast('✅ Produit publié avec succès !');
+
+  showToast("Publication en cours...");
+
+  // Emoji par categorie
+  var emojis = {
+    alimentaire:"🛒", electro:"📺", telephones:"📱",
+    informatique:"💻", mode:"👗", beaute:"💄",
+    pharmacie:"💊", maison:"🏠"
+  };
+
+  var productData = {
+    nom:           name,
+    categorie:     cat,
+    description:   desc || '',
+    emoji:         emojis[cat] || "🏷️",
+    prixNormal:    parseFloat(oldP),
+    prixPromo:     parseFloat(newP),
+    dateExpiration: expiry || ''
+  };
+
+  // Sauvegarder dans Firestore si disponible
+  if (window.saveProductToFirestore) {
+    var savedId = await window.saveProductToFirestore(productData);
+    if (savedId) {
+      showToast("Produit publie ! Visible par tous les clients.");
+      // Recharger les produits pour mise a jour immediate
+      if (window.loadProductsFromFirestore) {
+        await window.loadProductsFromFirestore();
+        renderHome();
+      }
+      // Recharger les produits du commercant dans le dashboard
+      if (window.loadMerchantProducts && window._auth?.currentUser) {
+        var prods = await window.loadMerchantProducts(window._auth.currentUser.uid);
+        DZ.dashboardPromos = prods.map(function(p) {
+          return {
+            id:     p.id,
+            emoji:  p.emoji || "🏷️",
+            name:   p.nom   || "Produit",
+            meta:   (p.prixPromo || 0) + " DA · Expire " + (p.dateExpiration || ""),
+            views:  p.vues  || 0,
+            status: p.actif ? "active" : "expired"
+          };
+        });
+      }
+      navigate('dashboard');
+      return;
+    }
+  }
+
+  // Fallback si Firestore non disponible
+  showToast("Produit publie avec succes !");
   navigate('dashboard');
 }

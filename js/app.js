@@ -514,7 +514,7 @@ function locateMe() {
 /* ══════════════════════════════════════════════
    DASHBOARD
 ══════════════════════════════════════════════ */
-function renderDashboard() {
+async function renderDashboard() {
   // Trial countdown
   const trialArea = document.getElementById('trial-countdown-area');
   if (trialArea) {
@@ -524,28 +524,58 @@ function renderDashboard() {
     if (!isPremium) {
       trialArea.innerHTML = renderTrialBadge(daysLeft);
     } else {
-      trialArea.innerHTML = `<div style="margin:12px 16px; background:#E6F7EE; border:1px solid #00A651; border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px;">
-        <span style="font-size:22px;">👑</span>
-        <div><div style="font-size:14px; font-weight:700; color:#007A3D;">Compte Premium Actif</div>
-        <div style="font-size:12px; color:#007A3D;">Abonnement à vie · Toutes les fonctionnalités débloquées</div></div></div>`;
+      trialArea.innerHTML = '<div style="margin:12px 16px; background:#E6F7EE; border:1px solid #00A651; border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px;"><span style="font-size:22px;">👑</span><div><div style="font-size:14px; font-weight:700; color:#007A3D;">Compte Premium Actif</div><div style="font-size:12px; color:#007A3D;">Abonnement a vie - Toutes les fonctionnalites debloquees</div></div></div>';
     }
   }
 
-  // Promos list
   const el = document.getElementById('dashboard-promos');
   if (!el) return;
-  el.innerHTML = DZ.dashboardPromos.map(p => `
-    <div class="dash-promo-item">
-      <div class="dash-promo-emoji">${p.emoji}</div>
-      <div class="dash-promo-info">
-        <div class="dash-promo-name">${p.name}</div>
-        <div class="dash-promo-meta">${p.meta}</div>
-      </div>
-      <div class="dash-promo-right">
-        <div class="dash-promo-views">${p.views} vues</div>
-        <span class="status-badge ${p.status}">${p.status === 'active' ? 'Active' : 'Expiré'}</span>
-      </div>
-    </div>`).join('');
+
+  // Charger les vrais produits du commercant depuis Firestore
+  if (window.loadMerchantProducts && DZ.user.uid) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--dz-muted);font-size:13px;">Chargement...</div>';
+    try {
+      const prods = await window.loadMerchantProducts(DZ.user.uid);
+      if (prods.length === 0) {
+        el.innerHTML = '<div style="text-align:center;padding:24px 16px;">' +
+          '<div style="font-size:40px;margin-bottom:10px;">📦</div>' +
+          '<div style="font-size:14px;font-weight:700;color:var(--dz-text);margin-bottom:6px;">Aucune promotion publiee</div>' +
+          '<div style="font-size:13px;color:var(--dz-muted);">Cliquez "+ Ajouter" pour publier votre premiere promotion !</div>' +
+          '</div>';
+        return;
+      }
+      el.innerHTML = prods.map(function(p) {
+        var status = p.actif ? 'active' : 'expired';
+        var label  = p.actif ? 'Active' : 'Expire';
+        return '<div class="dash-promo-item">' +
+          '<div class="dash-promo-emoji">' + (p.emoji || '🏷️') + '</div>' +
+          '<div class="dash-promo-info">' +
+            '<div class="dash-promo-name">' + (p.nom || p.name || 'Produit') + '</div>' +
+            '<div class="dash-promo-meta">' + formatDA(p.prixPromo || 0) + ' · Expire ' + (p.dateExpiration || '') + '</div>' +
+          '</div>' +
+          '<div class="dash-promo-right">' +
+            '<div class="dash-promo-views">' + (p.vues || 0) + ' vues</div>' +
+            '<span class="status-badge ' + status + '">' + label + '</span>' +
+          '</div></div>';
+      }).join('');
+    } catch(e) {
+      el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--dz-muted);">Erreur de chargement</div>';
+    }
+  } else {
+    // Fallback données demo
+    el.innerHTML = DZ.dashboardPromos.map(function(p) {
+      return '<div class="dash-promo-item">' +
+        '<div class="dash-promo-emoji">' + p.emoji + '</div>' +
+        '<div class="dash-promo-info">' +
+          '<div class="dash-promo-name">' + p.name + '</div>' +
+          '<div class="dash-promo-meta">' + p.meta + '</div>' +
+        '</div>' +
+        '<div class="dash-promo-right">' +
+          '<div class="dash-promo-views">' + p.views + ' vues</div>' +
+          '<span class="status-badge ' + p.status + '">' + (p.status === 'active' ? 'Active' : 'Expire') + '</span>' +
+        '</div></div>';
+    }).join('');
+  }
 }
 
 /* ══════════════════════════════════════════════
